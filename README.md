@@ -15,20 +15,20 @@ a 0–100 "title risk score" — like a credit score, but for whether the paperw
 
 ## Table of contents
 
-- [What is this, really?](#what-is-this-really)
-- [The 5 things it checks (in plain English)](#the-5-things-it-checks-in-plain-english)
-- [How it works, step by step](#how-it-works-step-by-step)
-- [A worked example](#a-worked-example)
-- [Project structure, explained](#project-structure-explained)
-- [The design pattern behind the scoring](#the-design-pattern-behind-the-scoring)
-- [Why rules instead of AI/ML](#why-rules-instead-of-aiml)
-- [API reference](#api-reference)
-- [Running it yourself](#running-it-yourself)
-- [Tech stack](#tech-stack)
+1. [What is this, really?](#1-what-is-this-really)
+2. [Running it yourself](#2-running-it-yourself)
+3. [The 5 things it checks (in plain English)](#3-the-5-things-it-checks-in-plain-english)
+4. [How it works, step by step](#4-how-it-works-step-by-step)
+5. [A worked example](#5-a-worked-example)
+6. [Project structure, explained](#6-project-structure-explained)
+7. [The design pattern behind the scoring](#7-the-design-pattern-behind-the-scoring)
+8. [Why rules instead of AI/ML](#8-why-rules-instead-of-aiml)
+9. [API reference](#9-api-reference)
+10. [Tech stack](#10-tech-stack)
 
 ---
 
-## What is this, really?
+## 1. What is this, really?
 
 Before anyone buys a plot of land in India, a lawyer usually digs through five or
 six government records to make sure the seller actually has the legal right to
@@ -53,7 +53,44 @@ every seeded property, nothing about it is pre-canned.
 > (survey numbers, names, and locations) written to demonstrate how the
 > scoring works. They are not real property records.
 
-## The 5 things it checks (in plain English)
+## 2. Running it yourself
+
+You need **Java 17** installed. You do **not** need Maven installed — this
+project bundles a Maven wrapper that downloads the right version for you
+automatically the first time you run it.
+
+**Step 1 — Clone the repository**
+
+```bash
+git clone https://github.com/sriram32086/land-title-risk-scorer.git
+cd land-title-risk-scorer
+```
+
+**Step 2 — Run it**
+
+| OS | Command |
+|---|---|
+| Windows | `mvnw.cmd spring-boot:run` |
+| Mac / Linux | `./mvnw spring-boot:run` |
+
+The first run takes a minute or two while it downloads Maven and the Java
+libraries the project depends on — that only happens once.
+
+**Step 3 — Open it**
+
+Once the terminal prints `Started TitleRiskScorerApplication`, open:
+
+👉 **http://localhost:8080**
+
+To stop it, go back to the terminal and press `Ctrl+C`.
+
+**Optional — look at the raw database.** While the app is running, open
+[http://localhost:8080/h2-console](http://localhost:8080/h2-console) — JDBC
+URL `jdbc:h2:mem:titleriskdb`, username `sa`, password blank. It's an
+in-memory database, so every restart resets it back to the same 20 sample
+parcels — nothing you do here can break anything permanently.
+
+## 3. The 5 things it checks (in plain English)
 
 Each of these is a real category of due diligence used when buying land in
 India. If any of these terms are new to you, here's the plain-language version:
@@ -70,7 +107,7 @@ The weights (30/25/20/15/10) add up to 100% and reflect how much legal weight
 each check actually carries in practice — the EC and litigation status matter
 far more than a website data-entry mismatch.
 
-## How it works, step by step
+## 4. How it works, step by step
 
 Nothing here is magic — here's the exact sequence of events from the moment
 you open the page to seeing a score on screen:
@@ -102,7 +139,7 @@ backend has no idea what the page looks like — it just answers questions like
 questions and drawing the answer on screen. This is exactly how a mobile app
 would talk to the same backend, too.
 
-## A worked example
+## 5. A worked example
 
 Let's score one real parcel from the seeded data by hand, so you can see
 there's no hidden logic — it's just multiplication and addition.
@@ -122,57 +159,69 @@ That "15" is exactly what you'll see on the list page for that parcel — red,
 because it's under 40. Open its detail page in the running app and you'll see
 these same 5 numbers, plus the plain-English reason behind each one.
 
-## Project structure, explained
+## 6. Project structure, explained
 
-If you've never opened a Spring Boot project before, here's what each folder
-is actually for, in order of "how a request flows through them":
+This is one Maven project, but it does two distinct jobs: a Java backend that
+computes scores, and a plain-JS frontend that displays them. To keep that
+clear, here they are as two separate diagrams instead of one mixed tree.
+
+### 6a. Backend — `src/main/java/com/titlerisk/`
+
+Every request flows through these packages roughly top to bottom:
 
 ```
-land-title-risk-scorer/
-├── src/main/java/com/titlerisk/
-│   │
-│   ├── model/            The "nouns" of the app. Parcel is a plot of land;
-│   │                     the 5 enums (EcStatus, LitigationStatus, etc.) are
-│   │                     just fixed lists of allowed answers, e.g. an EC can
-│   │                     only ever be CLEAN or FLAGGED — nothing else.
-│   │
-│   ├── repository/        One interface, ParcelRepository. This is what
-│   │                     talks to the database. You never write SQL here —
-│   │                     Spring Data generates it for you.
-│   │
-│   ├── service/           The "brain." RiskScoringService takes a Parcel and
-│   │   └── factors/       produces a score. The factors/ subfolder has one
-│   │                     small class per due-diligence check (see below).
-│   │
-│   ├── dto/                Shapes the backend's JSON requests/responses. Keeps
-│   │                     the database structure (Parcel) separate from what
-│   │                     the API actually sends/accepts over the wire —
-│   │                     includes CreateParcelRequest for the write path.
-│   │
-│   ├── controller/         ParcelApiController — the only class that knows
-│   │                     about HTTP. Exposes GET and POST /api/parcels.
-│   │
-│   └── config/              DataSeeder — runs once on startup and inserts the
-│                          20 sample parcels so there's something to look at.
+com.titlerisk
 │
-├── src/main/resources/
-│   ├── application.properties   App settings (which port, database URL, etc.)
-│   └── static/                  The frontend — plain HTML/CSS/JS, no
-│       ├── index.html           build step. Served as-is by Spring Boot.
-│       ├── parcel.html          Detail page for one property.
-│       ├── add.html             "Add a property" form — try your own data.
-│       ├── css/style.css
-│       └── js/                  common.js (shared helpers + factor glossary),
-│                                 list.js, detail.js, add.js — one per page.
+├── model/          The "nouns" of the app. Parcel is a plot of land; the 5
+│                   enums (EcStatus, LitigationStatus, etc.) are fixed lists
+│                   of allowed answers — an EC can only ever be CLEAN or
+│                   FLAGGED, nothing else.
 │
-├── pom.xml               Tells Maven which libraries (Spring Boot, H2, etc.)
-│                        this project depends on, and how to build it.
-├── mvnw / mvnw.cmd       Lets you build/run the project without installing
-│                        Maven yourself (see "Running it yourself" below).
-└── README.md              You are here.
+├── repository/      One interface, ParcelRepository. Talks to the database.
+│                   You never write SQL here — Spring Data generates it.
+│
+├── service/         The "brain." RiskScoringService takes a Parcel and
+│   └── factors/     produces a score by combining 5 independent checks.
+│                   The factors/ subfolder has one small class per check
+│                   (see section 7 for why it's split up this way).
+│
+├── dto/              Shapes the backend's JSON requests and responses.
+│                   Keeps the database structure (Parcel) separate from
+│                   what actually goes out over the wire.
+│
+├── controller/       ParcelApiController — the only class that knows about
+│                   HTTP. Exposes GET and POST on /api/parcels.
+│
+└── config/           DataSeeder — runs once on startup and inserts the 20
+                    sample parcels so there's something to look at.
 ```
 
-## The design pattern behind the scoring
+### 6b. Frontend — `src/main/resources/static/`
+
+Plain files, no build step, served as-is by Spring Boot:
+
+```
+static/
+├── index.html      The parcel list page — the one you land on.
+├── parcel.html      Detail page for one property (loaded via ?id=N).
+├── add.html         "Add a property" form — try your own data.
+├── css/style.css     One stylesheet, shared by every page.
+└── js/
+    ├── common.js     Shared helpers + the plain-English factor glossary.
+    ├── list.js       Drives index.html.
+    ├── detail.js      Drives parcel.html.
+    └── add.js         Drives add.html.
+```
+
+### 6c. Everything else
+
+| File | What it's for |
+|---|---|
+| `src/main/resources/application.properties` | App settings — port, database URL, etc. |
+| `pom.xml` | Tells Maven which libraries this project depends on, and how to build it. |
+| `mvnw` / `mvnw.cmd` | Lets you build/run the project without installing Maven yourself — see [section 2](#2-running-it-yourself). |
+
+## 7. The design pattern behind the scoring
 
 This is the part that's actually interesting from a software design point of
 view, so it's worth walking through slowly.
@@ -221,7 +270,7 @@ changing. In software design terms, this is the **Open/Closed Principle**:
 the scoring engine is *open* to adding new checks, but *closed* to needing
 modification when you do.
 
-## Why rules instead of AI/ML
+## 8. Why rules instead of AI/ML
 
 It would be possible to train a machine learning model to predict title risk
 instead of hand-writing these rules. Two reasons that's the wrong tool here:
@@ -238,7 +287,7 @@ instead of hand-writing these rules. Two reasons that's the wrong tool here:
    against the actual government records. A machine learning model's
    internal weights can't be checked against a legal document the same way.
 
-## API reference
+## 9. API reference
 
 The backend is a plain JSON REST API. You can call it directly with `curl`,
 Postman, or from any other app — it doesn't know or care that the bundled
@@ -337,49 +386,7 @@ form over this same endpoint, so anything you can do through the UI you can
 also do with a script.
 </details>
 
-## Running it yourself
-
-You need **Java 17** installed. You do **not** need Maven installed — this
-project bundles a Maven wrapper that downloads the right version for you
-automatically the first time you run it.
-
-**1. Clone the repository**
-
-```bash
-git clone https://github.com/sriram32086/land-title-risk-scorer.git
-cd land-title-risk-scorer
-```
-
-**2. Run it**
-
-On Windows:
-```bash
-mvnw.cmd spring-boot:run
-```
-
-On Mac/Linux:
-```bash
-./mvnw spring-boot:run
-```
-
-The first run will take a minute or two while it downloads Maven and all the
-Java libraries — that's normal, and only happens once.
-
-**3. Open it**
-
-Once you see `Started TitleRiskScorerApplication` in the terminal, open:
-
-👉 **http://localhost:8080**
-
-To stop it, go back to the terminal and press `Ctrl+C`.
-
-**Extra: peek at the raw database.** While the app is running, open
-[http://localhost:8080/h2-console](http://localhost:8080/h2-console) — use
-JDBC URL `jdbc:h2:mem:titleriskdb`, username `sa`, and leave the password
-blank. This is an in-memory database, so every restart resets it back to the
-same 20 sample parcels — there's nothing to lose or break.
-
-## Tech stack
+## 10. Tech stack
 
 | Layer | Technology |
 |---|---|
