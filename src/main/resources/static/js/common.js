@@ -34,27 +34,27 @@ function escapeHtml(value) {
 const FACTOR_INFO = {
     "Encumbrance Certificate": {
         icon: "📜",
-        color: "#4f46e5",
+        color: "#1e3a6d",
         blurb: "Checks government records for any old loans or legal claims still attached to this land."
     },
     "Litigation Status": {
         icon: "⚖️",
-        color: "#7c3aed",
+        color: "#5b2a6e",
         blurb: "Checks whether the property is currently tied up in any court case."
     },
     "Layout Approval": {
         icon: "🏛️",
-        color: "#0d9488",
+        color: "#1f6b52",
         blurb: "Checks whether the local planning authority (CRDA, VMRDA, or DTCP) approved this residential layout."
     },
     "RERA Registration": {
         icon: "📋",
-        color: "#2563eb",
+        color: "#7a1f2e",
         blurb: "Checks registration under India's Real Estate Regulation Act, required for projects marketed for sale."
     },
     "MeeBhoomi Digital Record": {
         icon: "🗺️",
-        color: "#db2777",
+        color: "#8a6a1a",
         blurb: "Checks whether the paper records match Andhra Pradesh's official digital land database."
     }
 };

@@ -1,42 +1,60 @@
-/* Land Title Risk Scorer — dashboard-style stylesheet.
-   Plain CSS, no framework. Built around a small set of variables so the
-   risk-band colors and the 5 factor-identity colors stay consistent
-   everywhere they show up (badges, gauge, bar chart, card accents). */
+/* Land Title Risk Scorer — stylesheet.
+   Plain CSS, no framework. Deliberately styled after the kind of place this
+   report would actually be trusted — a law firm or private bank, not a
+   startup dashboard: deep navy + gold, serif numerals, warm paper tones.
+   Built around a small set of variables so the risk-band colors and the 5
+   factor-identity colors stay consistent everywhere they show up (badges,
+   gauge, bar chart, card accents). Every color pair below was checked against
+   WCAG AA (4.5:1) before use — see the git history for the contrast audit. */
 
 :root {
-    --bg: #f4f5fb;
+    /* warm "paper" surface tones, not the cool gray-blue of a typical SaaS app */
+    --bg: #f6f4ee;
     --surface: #ffffff;
-    --surface-alt: #f8f9fd;
-    --border: #e6e8f0;
-    --text: #1a1d29;
-    --text-muted: #6b7280;
-    --text-faint: #656c79;
+    --surface-alt: #faf8f2;
+    --border: #e6e0d0;
+    --text: #21201b;
+    --text-muted: #5c5748;
+    --text-faint: #6e6858;
 
-    --primary: #4f46e5;
-    --primary-dark: #4338ca;
-    --accent: #0d9488;
+    /* deep navy + gold: the core of the "royal" palette */
+    --navy-950: #0a1220;
+    --navy-900: #0f1b30;
+    --navy-800: #16243d;
+    --gold: #c9a227;
+    --gold-light: #d4af5a;
+    --gold-dark: #8a6a1f;
+    --cream: #f3ecd8;
 
-    --low: #15803d;
-    --low-bg: #dcfce7;
-    --low-border: #86efac;
-    --medium: #b45309;
-    --medium-bg: #fef3c7;
-    --medium-border: #fcd34d;
-    --high: #b91c1c;
-    --high-bg: #fee2e2;
-    --high-border: #fca5a5;
+    --primary: var(--navy-900);
+    --primary-dark: var(--navy-950);
+    --accent: var(--gold);
 
-    /* one distinct identity color per due-diligence factor, used consistently
-       across the bar chart, card accents, and icon chips */
-    --f-ec: #4f46e5;
-    --f-lit: #7c3aed;
-    --f-layout: #0d9488;
-    --f-rera: #2563eb;
-    --f-meebhoomi: #db2777;
+    /* risk bands, jewel-toned rather than traffic-light bright */
+    --low: #1f6f4a;
+    --low-bg: #e7f2ec;
+    --low-border: #a9d3bd;
+    --medium: #835609;
+    --medium-bg: #f7ecd7;
+    --medium-border: #e2c284;
+    --high: #8a1f2b;
+    --high-bg: #f5e3e4;
+    --high-border: #dba7ac;
 
-    --radius: 14px;
-    --radius-sm: 9px;
-    --shadow: 0 1px 2px rgba(16, 24, 40, .04), 0 8px 24px rgba(16, 24, 40, .06);
+    /* one distinct jewel-tone identity color per due-diligence factor, used
+       consistently across the bar chart, card accents, and icon chips */
+    --f-ec: #1e3a6d;       /* sapphire */
+    --f-lit: #5b2a6e;      /* amethyst */
+    --f-layout: #1f6b52;   /* emerald */
+    --f-rera: #7a1f2e;     /* ruby */
+    --f-meebhoomi: #8a6a1a;/* topaz */
+
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 2px rgba(20, 16, 8, .05), 0 10px 28px rgba(20, 16, 8, .08);
+
+    --font-serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 * {
@@ -44,16 +62,23 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     background: var(--bg);
     color: var(--text);
     margin: 0;
     padding: 0 0 4rem;
     line-height: 1.5;
+    /* Force lining, equal-width digits everywhere by default. Without this,
+       serif fonts in particular (and some sans fonts) fall back to old-style
+       figures — digits like 3/4/5/7/9 sit at uneven heights, which reads as
+       sloppy on a score display. Scores and stat numbers below are sans-serif
+       specifically so this always applies cleanly regardless of font support. */
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
 }
 
 a {
-    color: var(--primary);
+    color: var(--navy-900);
     text-decoration: none;
 }
 
@@ -64,9 +89,21 @@ a:hover {
 /* ---------- Hero header ---------- */
 
 header.hero {
-    background: linear-gradient(120deg, #312e81 0%, #4f46e5 55%, #0d9488 130%);
+    position: relative;
+    background: linear-gradient(160deg, var(--navy-950) 0%, var(--navy-900) 55%, var(--navy-800) 100%);
     color: #fff;
     padding: 2.75rem 1.5rem 3.25rem;
+}
+
+/* a thin gold rule across the very top — a small "letterhead" touch */
+header.hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold-light) 25%, var(--gold) 50%, var(--gold-light) 75%, transparent);
 }
 
 header.hero .hero-inner {
@@ -76,24 +113,26 @@ header.hero .hero-inner {
 
 header.hero .eyebrow {
     text-transform: uppercase;
-    letter-spacing: .08em;
+    letter-spacing: .12em;
     font-size: .75rem;
-    font-weight: 600;
-    color: #c7d2fe;
-    margin-bottom: .5rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    margin-bottom: .6rem;
 }
 
 header.hero h1 {
-    margin: 0 0 .5rem;
-    font-size: 2rem;
-    font-weight: 800;
-    letter-spacing: -0.01em;
+    font-family: var(--font-serif);
+    margin: 0 0 .6rem;
+    font-size: 2.1rem;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+    color: #fdfbf5;
 }
 
 header.hero p.tagline {
     margin: 0;
-    font-size: 1.05rem;
-    color: #e0e7ff;
+    font-size: 1.02rem;
+    color: #d7dbe6;
     max-width: 640px;
 }
 
@@ -101,14 +140,15 @@ header.hero p.tagline {
     display: inline-flex;
     align-items: center;
     gap: .35rem;
-    color: #e0e7ff;
-    font-size: .9rem;
+    color: var(--gold-light);
+    font-size: .85rem;
     font-weight: 600;
+    letter-spacing: .02em;
     margin-bottom: 1rem;
 }
 
 .back-link:hover {
-    color: #fff;
+    color: var(--cream);
 }
 
 /* how-it-works strip inside the hero */
@@ -120,18 +160,21 @@ header.hero p.tagline {
 }
 
 .how-it-works .step {
-    background: rgba(255, 255, 255, .1);
-    border: 1px solid rgba(255, 255, 255, .18);
+    background: rgba(255, 255, 255, .045);
+    border: 1px solid rgba(201, 162, 39, .3);
     border-radius: var(--radius-sm);
     padding: .9rem 1rem;
     font-size: .85rem;
-    color: #eef2ff;
+    color: #dfe2ec;
 }
 
 .how-it-works .step b {
     display: block;
-    font-size: 1.3rem;
-    margin-bottom: .2rem;
+    font-size: 1.2rem;
+    color: var(--gold-light);
+    margin-bottom: .25rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
 }
 
 /* ---------- Layout ---------- */
@@ -148,8 +191,10 @@ section {
 }
 
 h2 {
-    font-size: 1.15rem;
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
     font-weight: 700;
+    color: var(--navy-900);
     margin: 0 0 .9rem;
 }
 
@@ -165,25 +210,31 @@ h2 {
 .stat-tile {
     background: var(--surface);
     border: 1px solid var(--border);
+    border-top: 3px solid var(--navy-900);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     padding: 1.1rem 1.25rem;
 }
 
 .stat-tile .value {
-    font-size: 1.9rem;
+    font-size: 1.95rem;
     font-weight: 800;
+    letter-spacing: -0.01em;
     line-height: 1.1;
+    color: var(--navy-900);
 }
 
 .stat-tile .label {
     color: var(--text-muted);
-    font-size: .82rem;
-    margin-top: .25rem;
+    font-size: .8rem;
+    margin-top: .3rem;
 }
 
+.stat-tile.low { border-top-color: var(--low); }
 .stat-tile.low .value { color: var(--low); }
+.stat-tile.medium { border-top-color: var(--medium); }
 .stat-tile.medium .value { color: var(--medium); }
+.stat-tile.high { border-top-color: var(--high); }
 .stat-tile.high .value { color: var(--high); }
 
 /* legend */
@@ -224,12 +275,13 @@ h2 {
     padding: 1.1rem 1.2rem;
     display: block;
     color: var(--text);
-    transition: transform .12s ease, box-shadow .12s ease;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
 }
 
 .parcel-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(16, 24, 40, .06), 0 16px 32px rgba(16, 24, 40, .1);
+    border-color: var(--gold-dark);
+    box-shadow: 0 4px 10px rgba(20, 16, 8, .07), 0 18px 36px rgba(20, 16, 8, .12);
     text-decoration: none;
 }
 
@@ -243,13 +295,15 @@ h2 {
 
 .parcel-card .survey {
     font-weight: 700;
-    font-size: 1.02rem;
+    font-size: 1.05rem;
+    letter-spacing: -0.005em;
+    color: var(--navy-900);
 }
 
 .parcel-card .location {
     color: var(--text-muted);
     font-size: .85rem;
-    margin-top: .15rem;
+    margin-top: .2rem;
 }
 
 .parcel-card .seller {
@@ -267,7 +321,8 @@ h2 {
     height: 2.75rem;
     border-radius: 50%;
     font-weight: 800;
-    font-size: 1rem;
+    font-size: 1.05rem;
+    letter-spacing: -0.01em;
     border: 2px solid transparent;
     flex-shrink: 0;
 }
@@ -279,10 +334,12 @@ h2 {
 /* pill version used elsewhere */
 .score-badge {
     display: inline-block;
-    padding: .2rem .65rem;
+    padding: .25rem .75rem;
     border-radius: 999px;
     font-weight: 700;
-    font-size: .85rem;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
 }
 
 .score-badge.low { background: var(--low-bg); color: var(--low); }
@@ -310,15 +367,16 @@ h2 {
 
 .parcel-meta .field .label {
     color: var(--text-faint);
-    font-size: .75rem;
+    font-size: .72rem;
     text-transform: uppercase;
-    letter-spacing: .05em;
-    margin-bottom: .2rem;
+    letter-spacing: .08em;
+    margin-bottom: .25rem;
 }
 
 .parcel-meta .field .value {
     font-weight: 600;
     font-size: .98rem;
+    color: var(--navy-900);
 }
 
 /* score summary: gauge + verdict */
@@ -380,15 +438,19 @@ h2 {
 }
 
 .gauge-center .num {
-    font-size: 2.3rem;
+    font-size: 2.6rem;
     font-weight: 800;
+    letter-spacing: -0.02em;
     line-height: 1;
+    color: var(--navy-900);
 }
 
 .gauge-center .out-of {
-    font-size: .72rem;
+    font-size: .7rem;
     color: var(--text-faint);
-    margin-top: .15rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-top: .3rem;
 }
 
 .verdict {
@@ -398,7 +460,7 @@ h2 {
 
 .verdict .band-label {
     display: inline-block;
-    margin-bottom: .5rem;
+    margin-bottom: .6rem;
 }
 
 .verdict p {
@@ -495,12 +557,13 @@ h2 {
 .factor-card h3 {
     margin: 0;
     font-size: 1.02rem;
+    color: var(--navy-900);
 }
 
 .factor-card .factor-blurb {
     color: var(--text-faint);
     font-size: .8rem;
-    margin-top: .15rem;
+    margin-top: .2rem;
 }
 
 .factor-card .factor-stats {
@@ -512,7 +575,8 @@ h2 {
 
 .factor-card .factor-stats .raw {
     font-weight: 800;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
     color: var(--text);
 }
 
@@ -542,8 +606,12 @@ h2 {
 footer {
     text-align: center;
     color: var(--text-faint);
-    font-size: .8rem;
-    margin-top: 3rem;
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    border-top: 1px solid var(--border);
+    margin: 3rem 1.5rem 0;
+    padding-top: 1.5rem;
 }
 
 .error-box {
@@ -562,11 +630,12 @@ footer {
     display: inline-flex;
     align-items: center;
     gap: .4rem;
-    background: #fff;
-    color: var(--primary-dark);
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+    color: var(--navy-950);
     font-weight: 700;
-    font-size: .9rem;
-    padding: .6rem 1.1rem;
+    font-size: .88rem;
+    letter-spacing: .01em;
+    padding: .65rem 1.2rem;
     border-radius: 999px;
     border: none;
     box-shadow: var(--shadow);
@@ -576,12 +645,13 @@ footer {
 
 .primary-btn:hover {
     text-decoration: none;
-    background: #f5f5ff;
+    filter: brightness(1.04);
 }
 
 .form-card {
     background: var(--surface);
     border: 1px solid var(--border);
+    border-top: 3px solid var(--navy-900);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     padding: 1.75rem;
@@ -606,6 +676,7 @@ footer {
     font-weight: 600;
     font-size: .85rem;
     margin-bottom: .35rem;
+    color: var(--navy-900);
 }
 
 .field-group .field-hint {
@@ -628,9 +699,9 @@ footer {
 
 .field-group input[type="text"]:focus,
 .field-group select:focus {
-    outline: 2px solid var(--primary);
+    outline: 2px solid var(--gold-dark);
     outline-offset: 1px;
-    border-color: var(--primary);
+    border-color: var(--gold-dark);
 }
 
 .form-row {
@@ -647,10 +718,11 @@ footer {
 }
 
 .submit-btn {
-    background: linear-gradient(120deg, var(--primary) 0%, var(--accent) 130%);
-    color: #fff;
+    background: var(--navy-900);
+    color: var(--gold-light);
     font-weight: 700;
     font-size: .95rem;
+    letter-spacing: .01em;
     padding: .75rem 1.5rem;
     border: none;
     border-radius: var(--radius-sm);
@@ -658,7 +730,7 @@ footer {
 }
 
 .submit-btn:hover {
-    opacity: .92;
+    background: var(--navy-950);
 }
 
 .submit-btn:disabled {
