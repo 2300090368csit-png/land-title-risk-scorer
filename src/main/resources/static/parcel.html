@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Parcel — Land Title Risk Scorer</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+    <h1>Land Title Risk Scorer</h1>
+    <div class="subtitle" id="page-subtitle">Loading&hellip;</div>
+</header>
+
+<main>
+    <a class="back-link" href="/">&larr; back to all parcels</a>
+
+    <section class="score-panel">
+        <div class="big-score">
+            <span class="score-badge" id="score-badge">&ndash;</span>
+        </div>
+        <div class="meta">
+            <div><span class="label">Seller</span><span id="meta-seller"></span></div>
+            <div><span class="label">Location</span><span id="meta-location"></span></div>
+            <div><span class="label">Survey No.</span><span id="meta-survey"></span></div>
+        </div>
+    </section>
+
+    <h2>Factor breakdown</h2>
+
+    <div id="factor-cards"></div>
+</main>
+
+<footer>Rule-based scoring across 5 weighted factors — no ML, fully explainable.</footer>
+
+<script src="js/common.js"></script>
+<script src="js/detail.js"></script>
+</body>
+</html>

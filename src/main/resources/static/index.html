@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Land Title Risk Scorer</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+    <h1>Land Title Risk Scorer</h1>
+    <div class="subtitle">Andhra Pradesh land parcel due-diligence — 20 sample parcels loaded on startup</div>
+</header>
+
+<main>
+    <p id="count">Loading parcels&hellip;</p>
+
+    <table id="parcel-table">
+        <thead>
+        <tr>
+            <th>Survey No.</th>
+            <th>Location</th>
+            <th>Seller</th>
+            <th>Risk Score</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</main>
+
+<footer>Rule-based scoring across 5 weighted factors — no ML, fully explainable.</footer>
+
+<script src="js/common.js"></script>
+<script src="js/list.js"></script>
+</body>
+</html>

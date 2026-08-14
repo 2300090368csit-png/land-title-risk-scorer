@@ -1,0 +1,22 @@
+# Maven build output
+target/
+
+# IDE files
+.idea/
+*.iml
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
+
+# OS clutter
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Claude Code harness state (not part of the project)
+.claude/

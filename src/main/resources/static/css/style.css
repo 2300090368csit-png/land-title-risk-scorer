@@ -1,0 +1,191 @@
+/* Land Title Risk Scorer - shared stylesheet.
+   Kept deliberately plain: no framework, no build step, just enough to make
+   the score bands and factor cards easy to scan. */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    background: #f4f5f7;
+    color: #22262b;
+    margin: 0;
+    padding: 0 0 3rem;
+}
+
+header {
+    background: #1f2d3d;
+    color: #fff;
+    padding: 1.25rem 2rem;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+header .subtitle {
+    color: #b7c2ce;
+    font-size: 0.9rem;
+    margin-top: 0.2rem;
+}
+
+main {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+th, td {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e7e9ec;
+}
+
+th {
+    background: #eef1f5;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #55606b;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover td {
+    background: #fafbfc;
+}
+
+.score-badge {
+    display: inline-block;
+    min-width: 2.6rem;
+    text-align: center;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.score-badge.low {
+    background: #dff5e6;
+    color: #1c7a3c;
+}
+
+.score-badge.medium {
+    background: #fdf1cf;
+    color: #92660a;
+}
+
+.score-badge.high {
+    background: #fbe1e1;
+    color: #a12727;
+}
+
+.big-score {
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.score-panel {
+    background: #fff;
+    border-radius: 10px;
+    padding: 1.75rem 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin-bottom: 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.score-panel .meta div {
+    margin-bottom: 0.3rem;
+    color: #444;
+}
+
+.score-panel .meta span.label {
+    color: #8a929b;
+    display: inline-block;
+    min-width: 110px;
+}
+
+.factor-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid #d6dbe1;
+}
+
+.factor-card.low {
+    border-left-color: #1c7a3c;
+}
+
+.factor-card.medium {
+    border-left-color: #b98a1f;
+}
+
+.factor-card.high {
+    border-left-color: #a12727;
+}
+
+.factor-card .factor-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.factor-card h3 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.factor-card .factor-stats {
+    font-size: 0.85rem;
+    color: #6b7480;
+}
+
+.factor-card p {
+    margin: 0.4rem 0 0;
+    color: #3a4048;
+    line-height: 1.45;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+footer {
+    text-align: center;
+    color: #97a0aa;
+    font-size: 0.8rem;
+    margin-top: 3rem;
+}
