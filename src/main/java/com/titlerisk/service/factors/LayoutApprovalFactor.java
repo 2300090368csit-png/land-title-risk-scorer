@@ -32,7 +32,7 @@ public class LayoutApprovalFactor implements RiskFactor {
             // Layout has cleared the applicable authority's scrutiny already, so
             // future construction permissions and loan sanctions have one less hurdle.
             return new FactorScore(
-                    "Layout Approval (CRDA/VMRDA/DTCP)",
+                    "Layout Approval",
                     100,
                     WEIGHT,
                     "Layout has formal approval from the applicable authority. Roads, open space, "
@@ -46,7 +46,7 @@ public class LayoutApprovalFactor implements RiskFactor {
             // simply come through, unlike an UNAPPROVED layout with no application
             // filed at all.
             return new FactorScore(
-                    "Layout Approval (CRDA/VMRDA/DTCP)",
+                    "Layout Approval",
                     55,
                     WEIGHT,
                     "Layout approval has been applied for but is not yet granted. There is a real "
@@ -60,7 +60,7 @@ public class LayoutApprovalFactor implements RiskFactor {
         // for unapproved layouts do exist from time to time, but they're neither
         // guaranteed nor free, so buyers should price that uncertainty in.
         return new FactorScore(
-                "Layout Approval (CRDA/VMRDA/DTCP)",
+                "Layout Approval",
                 10,
                 WEIGHT,
                 "No layout approval exists for this parcel. Unapproved layouts carry real "

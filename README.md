@@ -44,7 +44,10 @@ gives back:
 
 It comes pre-loaded with 20 realistic sample parcels from around Andhra
 Pradesh, so you can open it and start clicking around immediately — nothing to
-configure, no database to install.
+configure, no database to install. There's also an **"Add a property"** page
+where you can enter your own combination of the 5 checks and get a real,
+live-computed score back — it runs through the exact same backend logic as
+every seeded property, nothing about it is pre-canned.
 
 > **Note on the "20 sample parcels":** these are fictional, made-up examples
 > (survey numbers, names, and locations) written to demonstrate how the
@@ -141,12 +144,13 @@ land-title-risk-scorer/
 │   │   └── factors/       produces a score. The factors/ subfolder has one
 │   │                     small class per due-diligence check (see below).
 │   │
-│   ├── dto/                Shapes the backend's JSON responses. Keeps the
-│   │                     database structure (Parcel) separate from what the
-│   │                     API actually sends over the wire.
+│   ├── dto/                Shapes the backend's JSON requests/responses. Keeps
+│   │                     the database structure (Parcel) separate from what
+│   │                     the API actually sends/accepts over the wire —
+│   │                     includes CreateParcelRequest for the write path.
 │   │
 │   ├── controller/         ParcelApiController — the only class that knows
-│   │                     about HTTP. It exposes /api/parcels as JSON.
+│   │                     about HTTP. Exposes GET and POST /api/parcels.
 │   │
 │   └── config/              DataSeeder — runs once on startup and inserts the
 │                          20 sample parcels so there's something to look at.
@@ -155,10 +159,11 @@ land-title-risk-scorer/
 │   ├── application.properties   App settings (which port, database URL, etc.)
 │   └── static/                  The frontend — plain HTML/CSS/JS, no
 │       ├── index.html           build step. Served as-is by Spring Boot.
-│       ├── parcel.html
+│       ├── parcel.html          Detail page for one property.
+│       ├── add.html             "Add a property" form — try your own data.
 │       ├── css/style.css
-│       └── js/                  common.js (shared helpers), list.js,
-│                                 detail.js — each page's logic.
+│       └── js/                  common.js (shared helpers + factor glossary),
+│                                 list.js, detail.js, add.js — one per page.
 │
 ├── pom.xml               Tells Maven which libraries (Spring Boot, H2, etc.)
 │                        this project depends on, and how to build it.
@@ -297,6 +302,39 @@ curl http://localhost:8080/api/parcels/1
 ```
 
 Returns `404 Not Found` if the id doesn't exist.
+</details>
+
+<details>
+<summary><code>POST /api/parcels</code> — add a new property and get its score back</summary>
+
+```bash
+curl -X POST http://localhost:8080/api/parcels \
+  -H "Content-Type: application/json" \
+  -d '{
+    "surveyNo": "1/A",
+    "sellerName": "Jane Doe",
+    "locationArea": "Example Village, Guntur",
+    "ecStatus": "CLEAN",
+    "litigationStatus": "NONE",
+    "layoutApproval": "APPROVED",
+    "reraStatus": "REGISTERED",
+    "meeBhoomiMatch": "MATCHED"
+  }'
+```
+
+Returns `201 Created` with the same shape as `GET /api/parcels/{id}` — the
+newly assigned `id` and its full computed score, ready to redirect to.
+
+All 8 fields are required (every one of them feeds directly into the score).
+A missing or blank field returns `400 Bad Request` with a plain-English reason:
+
+```json
+{ "status": 400, "error": "Bad Request", "message": "Survey number is required." }
+```
+
+This is exactly what powers the **Add a property** page — it's a thin HTML
+form over this same endpoint, so anything you can do through the UI you can
+also do with a script.
 </details>
 
 ## Running it yourself

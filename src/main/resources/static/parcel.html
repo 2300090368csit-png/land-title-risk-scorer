@@ -8,31 +8,62 @@
 </head>
 <body>
 
-<header>
-    <h1>Land Title Risk Scorer</h1>
-    <div class="subtitle" id="page-subtitle">Loading&hellip;</div>
+<header class="hero">
+    <div class="hero-inner">
+        <a class="back-link" href="/">&larr; Back to all properties</a>
+        <div class="eyebrow">Property detail</div>
+        <h1 id="page-tagline">Loading&hellip;</h1>
+        <p class="tagline">
+            The gauge below is one score built from 5 separate checks, each weighted by how
+            much it actually matters legally. Scroll down to see exactly why each one scored
+            the way it did.
+        </p>
+    </div>
 </header>
 
 <main>
-    <a class="back-link" href="/">&larr; back to all parcels</a>
-
-    <section class="score-panel">
-        <div class="big-score">
-            <span class="score-badge" id="score-badge">&ndash;</span>
+    <section class="parcel-meta">
+        <div class="field">
+            <div class="label">Seller</div>
+            <div class="value" id="meta-seller">&ndash;</div>
         </div>
-        <div class="meta">
-            <div><span class="label">Seller</span><span id="meta-seller"></span></div>
-            <div><span class="label">Location</span><span id="meta-location"></span></div>
-            <div><span class="label">Survey No.</span><span id="meta-survey"></span></div>
+        <div class="field">
+            <div class="label">Location</div>
+            <div class="value" id="meta-location">&ndash;</div>
+        </div>
+        <div class="field">
+            <div class="label">Survey No.</div>
+            <div class="value" id="meta-survey">&ndash;</div>
         </div>
     </section>
 
-    <h2>Factor breakdown</h2>
+    <section class="score-summary">
+        <div class="gauge-wrap">
+            <div id="gauge-svg-slot"></div>
+            <div class="gauge-center">
+                <div class="num" id="gauge-number">&ndash;</div>
+                <div class="out-of">out of 100</div>
+            </div>
+        </div>
+        <div class="verdict">
+            <span class="score-badge" id="band-label">&ndash;</span>
+            <p id="verdict-text">Loading&hellip;</p>
+        </div>
+    </section>
 
-    <div id="factor-cards"></div>
+    <section>
+        <h2>How this score breaks down</h2>
+        <div class="contribution-bar" id="contribution-bar"></div>
+        <div class="contribution-legend" id="contribution-legend"></div>
+    </section>
+
+    <section>
+        <h2>The 5 checks, in detail</h2>
+        <div id="factor-cards"></div>
+    </section>
 </main>
 
-<footer>Rule-based scoring across 5 weighted factors — no ML, fully explainable.</footer>
+<footer>Rule-based scoring across 5 weighted factors — no ML, fully explainable. Sample data is fictional.</footer>
 
 <script src="js/common.js"></script>
 <script src="js/detail.js"></script>

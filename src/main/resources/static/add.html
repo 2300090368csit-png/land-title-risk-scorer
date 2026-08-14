@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Add a property — Land Title Risk Scorer</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="hero">
+    <div class="hero-inner">
+        <a class="back-link" href="/">&larr; Back to all properties</a>
+        <div class="eyebrow">Try it yourself</div>
+        <h1>Score your own property</h1>
+        <p class="tagline">
+            Fill in the basic details and the outcome of the 5 checks below, and this page will
+            calculate a live risk score the same way it does for every sample property &mdash;
+            using the exact same backend logic, nothing pre-canned.
+        </p>
+    </div>
+</header>
+
+<main>
+    <section class="form-card">
+        <form id="add-form" novalidate>
+            <p class="form-error" id="form-error" hidden></p>
+
+            <h2>Basic details</h2>
+            <div class="form-row">
+                <div class="field-group">
+                    <label for="surveyNo">Survey number</label>
+                    <input type="text" id="surveyNo" name="surveyNo" placeholder="e.g. 142/2A" required>
+                </div>
+                <div class="field-group">
+                    <label for="sellerName">Seller name</label>
+                    <input type="text" id="sellerName" name="sellerName" placeholder="e.g. K. Venkata Reddy" required>
+                </div>
+            </div>
+            <div class="field-group">
+                <label for="locationArea">Location</label>
+                <input type="text" id="locationArea" name="locationArea" placeholder="e.g. Tullur, Guntur" required>
+            </div>
+
+            <h2>The 5 checks</h2>
+            <p class="section-hint">Not sure what one of these means? See the glossary on the property detail page &mdash; pick whichever answer is closest to your situation.</p>
+
+            <div class="form-grid">
+                <div class="field-group">
+                    <label for="ecStatus">📜 Encumbrance Certificate</label>
+                    <select id="ecStatus" name="ecStatus" required>
+                        <option value="" disabled selected>Select&hellip;</option>
+                        <option value="CLEAN">Clean &mdash; no liens or claims found</option>
+                        <option value="FLAGGED">Flagged &mdash; has an unresolved claim</option>
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label for="litigationStatus">⚖️ Litigation status</label>
+                    <select id="litigationStatus" name="litigationStatus" required>
+                        <option value="" disabled selected>Select&hellip;</option>
+                        <option value="NONE">None &mdash; no court case</option>
+                        <option value="PENDING">Pending &mdash; case filed, not active yet</option>
+                        <option value="ACTIVE_SUIT">Active lawsuit &mdash; currently in court</option>
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label for="layoutApproval">🏛️ Layout approval</label>
+                    <select id="layoutApproval" name="layoutApproval" required>
+                        <option value="" disabled selected>Select&hellip;</option>
+                        <option value="APPROVED">Approved by CRDA / VMRDA / DTCP</option>
+                        <option value="PENDING">Application pending</option>
+                        <option value="UNAPPROVED">Not approved</option>
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label for="reraStatus">📋 AP RERA registration</label>
+                    <select id="reraStatus" name="reraStatus" required>
+                        <option value="" disabled selected>Select&hellip;</option>
+                        <option value="REGISTERED">Registered with AP RERA</option>
+                        <option value="NOT_REGISTERED">Not registered (but should be)</option>
+                        <option value="NOT_APPLICABLE">Not applicable &mdash; plain land resale</option>
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label for="meeBhoomiMatch">🗺️ MeeBhoomi digital record</label>
+                    <select id="meeBhoomiMatch" name="meeBhoomiMatch" required>
+                        <option value="" disabled selected>Select&hellip;</option>
+                        <option value="MATCHED">Matches the MeeBhoomi record</option>
+                        <option value="MISMATCH">Doesn't match the MeeBhoomi record</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submit-btn">Calculate risk score</button>
+            <p class="form-note">This uses an in-memory database &mdash; anything you add here resets the next time the server restarts.</p>
+        </form>
+    </section>
+</main>
+
+<footer>Rule-based scoring across 5 weighted factors — no ML, fully explainable. Sample data is fictional.</footer>
+
+<script src="js/common.js"></script>
+<script src="js/add.js"></script>
+</body>
+</html>
