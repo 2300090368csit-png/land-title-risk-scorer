@@ -6,6 +6,15 @@ a 0–100 "title risk score" — like a credit score, but for whether the paperw
 </p>
 
 <p align="center">
+<img alt="Java 17" src="https://img.shields.io/badge/Java-17-b07219">
+<img alt="Spring Boot 3" src="https://img.shields.io/badge/Spring%20Boot-3-6DB33F">
+<img alt="Spring Security" src="https://img.shields.io/badge/Spring%20Security-session%20auth-6DB33F">
+<img alt="Tests" src="https://img.shields.io/badge/tests-36%20passing-brightgreen">
+<a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue"></a>
+<a href="https://land-title-risk-scorer.onrender.com/"><img alt="Live demo" src="https://img.shields.io/badge/demo-online-success"></a>
+</p>
+
+<p align="center">
 <b>Backend:</b> Java 17 + Spring Boot 3 &nbsp;|&nbsp;
 <b>Frontend:</b> plain HTML/CSS/JavaScript &nbsp;|&nbsp;
 <b>Database:</b> H2 (in-memory, zero setup)
