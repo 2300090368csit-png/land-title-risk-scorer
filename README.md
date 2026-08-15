@@ -110,7 +110,7 @@ parcels — nothing you do here can break anything permanently.
 
 ## 3. Screens and how you move between them
 
-There are six pages. This is the whole app:
+There are seven pages. This is the whole app:
 
 ```mermaid
 flowchart LR
@@ -129,7 +129,7 @@ flowchart LR
 | `index.html` | Branded intro animation. Auto-advances to the login page; has a Skip link. Purely cosmetic — it is **not** a security gate. |
 | `login.html` | Sign in. Redirects straight to the dashboard if you already have a valid session. |
 | `register.html` | Create an account. Signs you in automatically on success. |
-| `dashboard.html` | The main screen: summary stats plus a sortable-looking table of every property and its score. |
+| `dashboard.html` | The main screen: summary stats plus a table of every property and its score. |
 | `parcel.html` | One property: score gauge, the record itself, a weighted breakdown bar, and a card per check. Visiting it records a History entry. |
 | `add.html` | Enter your own five check outcomes and get a live score. |
 | `history.html` | Every property *you* have checked, most recent first. |
@@ -154,18 +154,21 @@ far more than a website data-entry mismatch.
 ## 5. How it works, step by step
 
 Nothing here is magic — here's the exact sequence of events from the moment
-you open the page to seeing a score on screen:
+you open the app to seeing scores on screen:
 
 ```mermaid
 sequenceDiagram
     participant You as You (browser)
-    participant FE as Frontend (index.html + JS)
+    participant FE as Frontend (dashboard.html + JS)
     participant API as Backend (Spring Boot REST API)
     participant Logic as Scoring logic (5 factor classes)
     participant DB as H2 Database
 
-    You->>FE: Open http://localhost:8080
-    FE->>API: fetch("/api/parcels")
+    Note over You,FE: intro plays, then you sign in
+    You->>FE: land on dashboard.html
+    FE->>API: GET /api/auth/me
+    API-->>FE: 200 — session is valid
+    FE->>API: GET /api/parcels
     API->>DB: "give me every parcel"
     DB-->>API: 20 rows of raw parcel data
     API->>Logic: score each parcel
@@ -174,8 +177,8 @@ sequenceDiagram
     FE-->>You: renders the table you see
 ```
 
-Click into any row and the exact same thing happens again, just for one
-parcel, with the full breakdown of all 5 factors instead of just the total.
+Click into any row and the same thing happens again for that one parcel, with
+the full breakdown of all 5 factors instead of just the total.
 
 The important part: **the backend and frontend only ever talk in JSON.** The
 backend has no idea what the page looks like — it just answers questions like
@@ -254,23 +257,25 @@ and one JS file per screen, plus shared helpers:
 
 ```
 static/
-├── index.html       Animated intro (auto-advances to login)
-├── login.html       Sign in
-├── register.html    Create an account
-├── dashboard.html   All properties — the main screen
-├── parcel.html      One property's full breakdown (?id=N)
-├── add.html         "Add a property" form
-├── history.html     Your past score checks
-│
-├── css/style.css    One stylesheet shared by every page
-└── js/
-    ├── common.js     Shared helpers: requireAuth(), the nav bar, the SVG
-    │                 icon set, and the plain-English factor glossary.
-    ├── intro.js      index.html      ├── dashboard.js  dashboard.html
-    ├── login.js      login.html      ├── detail.js     parcel.html
-    ├── register.js   register.html   ├── add.js        add.html
-    └── history.js    history.html
+├── index.html  login.html  register.html  dashboard.html
+├── parcel.html  add.html  history.html
+├── css/style.css      one stylesheet, shared by every page
+└── js/                one file per page, plus common.js
 ```
+
+`js/common.js` holds everything the pages share: `requireAuth()`, the top nav
+bar, the SVG icon set, and the plain-English factor glossary. Every other JS
+file drives exactly one page:
+
+| Page | Its script |
+|---|---|
+| `index.html` (intro) | `js/intro.js` |
+| `login.html` | `js/login.js` |
+| `register.html` | `js/register.js` |
+| `dashboard.html` | `js/dashboard.js` |
+| `parcel.html` | `js/detail.js` |
+| `add.html` | `js/add.js` |
+| `history.html` | `js/history.js` |
 
 ### 7c. Everything else
 
@@ -459,7 +464,7 @@ Newest first, and always scoped to the signed-in account.
 <summary><code>GET /api/parcels</code> — list every parcel with its score</summary>
 
 ```bash
-curl http://localhost:8080/api/parcels
+curl -b cookies.txt http://localhost:8080/api/parcels
 ```
 
 ```json
@@ -484,7 +489,7 @@ or `"high"` (< 40, red) — matches the color-coding in the UI.
 <summary><code>GET /api/parcels/{id}</code> — full breakdown for one parcel</summary>
 
 ```bash
-curl http://localhost:8080/api/parcels/1
+curl -b cookies.txt http://localhost:8080/api/parcels/1
 ```
 
 ```json
@@ -519,7 +524,7 @@ Returns `404 Not Found` if the id doesn't exist.
 <summary><code>POST /api/parcels</code> — add a new property and get its score back</summary>
 
 ```bash
-curl -X POST http://localhost:8080/api/parcels \
+curl -b cookies.txt -X POST http://localhost:8080/api/parcels \
   -H "Content-Type: application/json" \
   -d '{
     "surveyNo": "1/A",
