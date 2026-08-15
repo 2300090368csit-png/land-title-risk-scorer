@@ -15,7 +15,6 @@ import static com.titlerisk.model.EcStatus.CLEAN;
 import static com.titlerisk.model.EcStatus.FLAGGED;
 import static com.titlerisk.model.LandClassification.ASSIGNED_DPATTA;
 import static com.titlerisk.model.LandClassification.ENDOWMENT_WAKF;
-import static com.titlerisk.model.LandClassification.GOVERNMENT_PORAMBOKE;
 import static com.titlerisk.model.LandClassification.PRIVATE_PATTA;
 import static com.titlerisk.model.LayoutApprovalStatus.APPROVED;
 import static com.titlerisk.model.LayoutApprovalStatus.UNAPPROVED;
@@ -147,10 +146,7 @@ public class DataSeeder implements CommandLineRunner {
                         APPROVED, NOT_REQUIRED, NOT_APPLICABLE, MATCHED),
                 new Parcel("158/2", "L. Manjula", "Kovur, Nellore",
                         NOT_LISTED, ENDOWMENT_WAKF, FLAGGED, NONE, NOT_IN_RECORD,
-                        UNAPPROVED, NOT_CONVERTED, NOT_APPLICABLE, MISMATCH),
-                new Parcel("7/1", "S. Ravi Teja", "Kanuru, Krishna",
-                        NOT_LISTED, GOVERNMENT_PORAMBOKE, FLAGGED, NONE, NOT_IN_RECORD,
-                        UNAPPROVED, NOT_CONVERTED, NOT_REGISTERED, MISMATCH)
+                        UNAPPROVED, NOT_CONVERTED, NOT_APPLICABLE, MISMATCH)
         );
 
         parcelRepository.saveAll(parcels);
