@@ -17,6 +17,7 @@ a 0–100 "title risk score" — like a credit score, but for whether the paperw
 
 1. [What is this, really?](#1-what-is-this-really)
 2. [Running it yourself](#2-running-it-yourself)
+&nbsp;&nbsp;&nbsp;2b. [Deploying it so other people can open a link](#2b-deploying-it-so-other-people-can-open-a-link)
 3. [Screens and how you move between them](#3-screens-and-how-you-move-between-them)
 4. [The 5 things it checks (in plain English)](#4-the-5-things-it-checks-in-plain-english)
 5. [How it works, step by step](#5-how-it-works-step-by-step)
@@ -102,11 +103,46 @@ don't have to register first:
 Or click **Create an account** on the login page to register your own — your
 History tab is private to whichever account you're signed in as.
 
-**Optional — look at the raw database.** While the app is running, open
-[http://localhost:8080/h2-console](http://localhost:8080/h2-console) — JDBC
-URL `jdbc:h2:mem:titleriskdb`, username `sa`, password blank. It's an
+**Optional — look at the raw database.** The H2 web console is **off by
+default**, because it runs arbitrary SQL against a database with a blank
+password and this app is meant to be deployable publicly. Turn it on locally
+with the `dev` profile:
+
+```bash
+mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+Then open [http://localhost:8080/h2-console](http://localhost:8080/h2-console) —
+JDBC URL `jdbc:h2:mem:titleriskdb`, username `sa`, password blank. It's an
 in-memory database, so every restart resets it back to the same 20 sample
-parcels — nothing you do here can break anything permanently.
+parcels; nothing you do here can break anything permanently.
+
+## 2b. Deploying it so other people can open a link
+
+The repo carries everything needed to deploy: a multi-stage `Dockerfile`, a
+`render.yaml` blueprint, and `server.port=${PORT:8080}` so the app binds to
+whatever port the host assigns.
+
+**On Render (free, no card):**
+
+1. Go to [render.com](https://render.com) and sign in with GitHub.
+2. **New → Web Service**, pick this repository.
+3. Render reads `render.yaml`, sees `runtime: docker`, and needs nothing else — click **Create**.
+
+First build takes a few minutes. After that you get a public URL and anyone
+can sign in with the demo account.
+
+Two honest caveats about the free tier:
+
+- **It sleeps after ~15 minutes idle.** The first visit after a quiet spell
+  takes roughly 50 seconds to wake up. Worth warning anyone you send the link to.
+- **The database is in-memory**, so every restart wipes it. The 20 sample
+  parcels and the `demo` account are re-seeded automatically, but accounts
+  other people register — and their history — disappear on the next restart.
+  Moving to Render's free Postgres would fix that; see
+  [section 12](#12-tech-stack) for what else that entails.
+
+The same `Dockerfile` works unchanged on Railway, Fly.io, Koyeb or Cloud Run.
 
 ## 3. Screens and how you move between them
 

@@ -53,6 +53,9 @@ public class SecurityConfig {
                 // H2 console renders itself inside a frame; allow same-origin framing for it only.
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .authorizeHttpRequests(auth -> auth
+                        // Only reachable at all when the "dev" profile turned the console on
+                        // (see application.properties) — with it off, Spring never registers
+                        // the servlet, so this rule matches nothing in a deployed build.
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/logout").permitAll()
                         .requestMatchers("/", "/*.html", "/css/**", "/js/**", "/favicon.ico").permitAll()

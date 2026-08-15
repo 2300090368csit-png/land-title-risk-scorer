@@ -1,0 +1,23 @@
+# Render blueprint. With this file in the repo root, Render configures the
+# service itself — you don't have to fill anything in by hand in the dashboard.
+#
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: land-title-risk-scorer
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    # Closest free region to India; change to oregon / frankfurt / ohio if you
+    # want the demo to feel faster from elsewhere.
+    region: singapore
+
+    # Render polls this to decide the instance came up. It has to be a path that
+    # answers 200 without a session, so the login page rather than the dashboard.
+    healthCheckPath: /login.html
+
+    envVars:
+      # Free instances get 512 MB. Cap the heap below that and use the smaller
+      # collector so the JVM doesn't get OOM-killed during startup.
+      - key: JAVA_OPTS
+        value: "-XX:MaxRAMPercentage=70 -XX:+UseSerialGC"
