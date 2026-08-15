@@ -40,6 +40,8 @@ public final class ParcelMapper {
                 parcel.getMeeBhoomiMatch().name(),
                 result.getRoundedScore(),
                 result.getRiskBand(),
+                Math.round(result.getUncappedScore()),
+                result.getCeilingReason(),
                 result.getFactorScores().stream().map(ParcelMapper::toBreakdown).toList()
         );
     }

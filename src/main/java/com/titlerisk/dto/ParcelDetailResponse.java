@@ -18,6 +18,10 @@ public record ParcelDetailResponse(
         String meeBhoomiMatch,
         long score,
         String riskBand,
+        /** Weighted sum before any cap. Equals {@code score} when nothing capped it. */
+        long uncappedScore,
+        /** Why the score was capped, or null when it wasn't. */
+        String ceilingReason,
         List<FactorBreakdownResponse> factors
 ) {
 }

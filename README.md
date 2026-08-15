@@ -151,6 +151,29 @@ The weights (30/25/20/15/10) add up to 100% and reflect how much legal weight
 each check actually carries in practice — the EC and litigation status matter
 far more than a website data-entry mismatch.
 
+### One rule that isn't just a weight
+
+A purely additive score has a blind spot, and this project hit it. A parcel
+that was clean on all four documentary checks but had an **active lawsuit**
+scored 76 — which crossed the threshold and displayed as *"Low risk."* A
+property a court can freeze should never read low risk, however tidy the rest
+of the file is.
+
+So an active suit now imposes a **ceiling** of 45 on the final score, not just
+a deduction. Two deliberate details:
+
+- The ceiling is **45, not 0** — it lands in "medium", because a suit may prove
+  frivolous, and forcing an otherwise-clean parcel into the same band as one
+  failing every check would overstate it.
+- The cap is **explained on screen**, showing both the capped figure and the
+  weighted total it replaced ("weighted total was 76"), so the number on the
+  gauge never contradicts the arithmetic in the breakdown below it.
+
+Architecturally the ceiling rides on `FactorScore`, not on the `RiskFactor`
+interface — so `LitigationFactor` declares it, `RiskScoringService` just
+applies whichever ceiling is strictest, and a future factor can introduce one
+without either of them changing.
+
 ## 5. How it works, step by step
 
 Nothing here is magic — here's the exact sequence of events from the moment
@@ -205,6 +228,11 @@ there's no hidden logic — it's just multiplication and addition.
 That "15" is exactly what you'll see on the list page for that parcel — red,
 because it's under 40. Open its detail page in the running app and you'll see
 these same 5 numbers, plus the plain-English reason behind each one.
+
+The active-suit ceiling doesn't change this one: 14.75 is already far below
+45, so there's nothing to cap. It only bites where clean paperwork would
+otherwise have carried a litigated parcel over the line — parcel `33/1A`
+totals 76 on the weighted sum and is capped to 45.
 
 ## 7. Project structure, explained
 
@@ -505,6 +533,8 @@ curl -b cookies.txt http://localhost:8080/api/parcels/1
   "meeBhoomiMatch": "MATCHED",
   "score": 100,
   "riskBand": "low",
+  "uncappedScore": 100,
+  "ceilingReason": null,
   "factors": [
     {
       "factorName": "Encumbrance Certificate",
@@ -562,6 +592,7 @@ also do with a script.
 | Database | H2 (in-memory — no install, no setup) |
 | Frontend | Plain HTML, CSS, and JavaScript (`fetch` API) — no framework, no build step, no npm |
 | Icons | Hand-written inline SVG (no icon library, no emoji) |
+| Testing | JUnit 5 — 36 tests, run with `mvnw.cmd test` |
 | Build tool | Maven (wrapper included, so a local Maven install isn't required) |
 
 ---

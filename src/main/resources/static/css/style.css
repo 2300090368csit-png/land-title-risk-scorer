@@ -483,6 +483,26 @@ table.data .row-link:hover { text-decoration: none; }
     text-align: left;
 }
 
+/* shown only when a factor capped the score (e.g. an active lawsuit) */
+.cap-note {
+    margin: .85rem 0 0;
+    padding: .65rem .8rem;
+    background: var(--medium-bg);
+    border: 1px solid var(--medium-border);
+    border-radius: var(--radius-sm);
+    color: var(--medium);
+    font-size: .8rem;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.cap-note .cap-math {
+    display: block;
+    margin-top: .3rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
 /* key/value facts list on the detail page */
 .facts { display: grid; gap: .1rem; }
 

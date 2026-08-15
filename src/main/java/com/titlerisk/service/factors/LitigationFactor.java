@@ -16,6 +16,19 @@ public class LitigationFactor implements RiskFactor {
 
     private static final double WEIGHT = 0.25;
 
+    /**
+     * Highest total a parcel under an active suit may report, no matter how
+     * clean everything else is.
+     *
+     * 45 lands deliberately in the "medium" band rather than "high". The
+     * reasoning: a live suit is a stop-and-take-advice condition, so it must
+     * never read "Low risk" — but a suit may also turn out to be frivolous or
+     * quickly dismissed, so with otherwise immaculate paperwork it would be
+     * overstating things to force it into the same band as a parcel that is
+     * failing every check.
+     */
+    private static final double ACTIVE_SUIT_CEILING = 45;
+
     @Override
     public double getWeight() {
         return WEIGHT;
@@ -57,6 +70,9 @@ public class LitigationFactor implements RiskFactor {
                 // active dispute, which can override an otherwise clean paperwork
                 // trail entirely - hence the low score even if every other check
                 // comes back clean.
+                // The ceiling is the "can override an otherwise clean paperwork trail"
+                // sentence made literal: without it the additive total lets four clean
+                // checks outvote the one condition that can freeze the whole transaction.
                 return new FactorScore(
                         "Litigation Status",
                         5,
@@ -64,6 +80,11 @@ public class LitigationFactor implements RiskFactor {
                         "Active litigation detected — the property is sub judice. A court can stay "
                                 + "registration or reverse a completed sale while the case is pending, which "
                                 + "can override an otherwise clean paperwork trail."
+                ).withCeiling(
+                        ACTIVE_SUIT_CEILING,
+                        "Score capped at " + (int) ACTIVE_SUIT_CEILING + " because this property is under an "
+                                + "active lawsuit. A parcel a court can freeze cannot be reported as low risk, "
+                                + "however clean the rest of its paperwork is."
                 );
         }
     }

@@ -50,8 +50,26 @@ public class RiskScoringService {
         // Sort heaviest-weighted factor first (EC, litigation, layout approval,
         // RERA, MeeBhoomi) purely for a consistent, readable display order -
         // the scoring math above doesn't depend on this at all.
+        // A factor may declare that its finding is disqualifying — that the parcel
+        // cannot report better than some ceiling regardless of the weighted total.
+        // If several do, the strictest wins. Note this class still names no
+        // concrete factor: it only asks each returned score whether it capped
+        // anything, so a future factor can introduce a ceiling without touching
+        // this method.
+        FactorScore capping = scores.stream()
+                .filter(s -> s.getCeiling().isPresent())
+                .min(Comparator.comparingDouble(s -> s.getCeiling().getAsDouble()))
+                .orElse(null);
+
+        double finalScore = total;
+        String ceilingReason = null;
+        if (capping != null && capping.getCeiling().getAsDouble() < total) {
+            finalScore = capping.getCeiling().getAsDouble();
+            ceilingReason = capping.getCeilingReason();
+        }
+
         scores.sort(Comparator.comparingDouble(FactorScore::getWeight).reversed());
 
-        return new RiskResult(total, scores);
+        return new RiskResult(finalScore, scores, total, ceilingReason);
     }
 }

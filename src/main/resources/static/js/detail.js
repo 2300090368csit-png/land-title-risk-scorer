@@ -24,6 +24,19 @@ function renderScorePanel(parcel) {
     label.className = `score-pill ${parcel.riskBand}`;
 
     document.getElementById("verdict-text").textContent = verdictFor(parcel.riskBand);
+
+    // When a factor reported a disqualifying condition the displayed number is a
+    // cap, not the weighted sum — say so, otherwise the arithmetic on the
+    // breakdown bar below won't add up to the score above it and the whole
+    // "every point is explainable" promise breaks.
+    const capEl = document.getElementById("cap-note");
+    if (parcel.ceilingReason) {
+        capEl.innerHTML = `${escapeHtml(parcel.ceilingReason)}
+            <span class="cap-math">Weighted total was ${parcel.uncappedScore}.</span>`;
+        capEl.hidden = false;
+    } else {
+        capEl.hidden = true;
+    }
 }
 
 function renderFacts(parcel) {
