@@ -17,14 +17,16 @@ a 0–100 "title risk score" — like a credit score, but for whether the paperw
 
 1. [What is this, really?](#1-what-is-this-really)
 2. [Running it yourself](#2-running-it-yourself)
-3. [The 5 things it checks (in plain English)](#3-the-5-things-it-checks-in-plain-english)
-4. [How it works, step by step](#4-how-it-works-step-by-step)
-5. [A worked example](#5-a-worked-example)
-6. [Project structure, explained](#6-project-structure-explained)
-7. [The design pattern behind the scoring](#7-the-design-pattern-behind-the-scoring)
-8. [Why rules instead of AI/ML](#8-why-rules-instead-of-aiml)
-9. [API reference](#9-api-reference)
-10. [Tech stack](#10-tech-stack)
+3. [Screens and how you move between them](#3-screens-and-how-you-move-between-them)
+4. [The 5 things it checks (in plain English)](#4-the-5-things-it-checks-in-plain-english)
+5. [How it works, step by step](#5-how-it-works-step-by-step)
+6. [A worked example](#6-a-worked-example)
+7. [Project structure, explained](#7-project-structure-explained)
+8. [The design pattern behind the scoring](#8-the-design-pattern-behind-the-scoring)
+9. [How accounts and history work](#9-how-accounts-and-history-work)
+10. [Why rules instead of AI/ML](#10-why-rules-instead-of-aiml)
+11. [API reference](#11-api-reference)
+12. [Tech stack](#12-tech-stack)
 
 ---
 
@@ -48,6 +50,10 @@ configure, no database to install. There's also an **"Add a property"** page
 where you can enter your own combination of the 5 checks and get a real,
 live-computed score back — it runs through the exact same backend logic as
 every seeded property, nothing about it is pre-canned.
+
+The app sits behind a **login**, and every property you check is recorded in a
+private, per-account **History** tab — see
+[section 9](#9-how-accounts-and-history-work) for how that works.
 
 > **Note on the "20 sample parcels":** these are fictional, made-up examples
 > (survey numbers, names, and locations) written to demonstrate how the
@@ -84,13 +90,51 @@ Once the terminal prints `Started TitleRiskScorerApplication`, open:
 
 To stop it, go back to the terminal and press `Ctrl+C`.
 
+**Step 4 — Sign in**
+
+The app is behind a login. A demo account is created on every startup so you
+don't have to register first:
+
+| Username | Password |
+|---|---|
+| `demo` | `demo1234` |
+
+Or click **Create an account** on the login page to register your own — your
+History tab is private to whichever account you're signed in as.
+
 **Optional — look at the raw database.** While the app is running, open
 [http://localhost:8080/h2-console](http://localhost:8080/h2-console) — JDBC
 URL `jdbc:h2:mem:titleriskdb`, username `sa`, password blank. It's an
 in-memory database, so every restart resets it back to the same 20 sample
 parcels — nothing you do here can break anything permanently.
 
-## 3. The 5 things it checks (in plain English)
+## 3. Screens and how you move between them
+
+There are six pages. This is the whole app:
+
+```mermaid
+flowchart LR
+    A["index.html<br/>animated intro<br/>(~2.8s, skippable)"] --> B["login.html<br/>sign in"]
+    B <--> R["register.html<br/>create account"]
+    B --> D["dashboard.html<br/>all properties"]
+    D --> P["parcel.html<br/>one property's<br/>full breakdown"]
+    D --> N["add.html<br/>score your own"]
+    N --> P
+    D <--> H["history.html<br/>your past checks"]
+    P -.->|"logged automatically"| H
+```
+
+| Page | What it's for |
+|---|---|
+| `index.html` | Branded intro animation. Auto-advances to the login page; has a Skip link. Purely cosmetic — it is **not** a security gate. |
+| `login.html` | Sign in. Redirects straight to the dashboard if you already have a valid session. |
+| `register.html` | Create an account. Signs you in automatically on success. |
+| `dashboard.html` | The main screen: summary stats plus a sortable-looking table of every property and its score. |
+| `parcel.html` | One property: score gauge, the record itself, a weighted breakdown bar, and a card per check. Visiting it records a History entry. |
+| `add.html` | Enter your own five check outcomes and get a live score. |
+| `history.html` | Every property *you* have checked, most recent first. |
+
+## 4. The 5 things it checks (in plain English)
 
 Each of these is a real category of due diligence used when buying land in
 India. If any of these terms are new to you, here's the plain-language version:
@@ -107,7 +151,7 @@ The weights (30/25/20/15/10) add up to 100% and reflect how much legal weight
 each check actually carries in practice — the EC and litigation status matter
 far more than a website data-entry mismatch.
 
-## 4. How it works, step by step
+## 5. How it works, step by step
 
 Nothing here is magic — here's the exact sequence of events from the moment
 you open the page to seeing a score on screen:
@@ -139,7 +183,7 @@ backend has no idea what the page looks like — it just answers questions like
 questions and drawing the answer on screen. This is exactly how a mobile app
 would talk to the same backend, too.
 
-## 5. A worked example
+## 6. A worked example
 
 Let's score one real parcel from the seeded data by hand, so you can see
 there's no hidden logic — it's just multiplication and addition.
@@ -159,61 +203,76 @@ That "15" is exactly what you'll see on the list page for that parcel — red,
 because it's under 40. Open its detail page in the running app and you'll see
 these same 5 numbers, plus the plain-English reason behind each one.
 
-## 6. Project structure, explained
+## 7. Project structure, explained
 
 This is one Maven project, but it does two distinct jobs: a Java backend that
 computes scores, and a plain-JS frontend that displays them. To keep that
 clear, here they are as two separate diagrams instead of one mixed tree.
 
-### 6a. Backend — `src/main/java/com/titlerisk/`
+### 7a. Backend — `src/main/java/com/titlerisk/`
 
 Every request flows through these packages roughly top to bottom:
 
 ```
 com.titlerisk
 │
-├── model/          The "nouns" of the app. Parcel is a plot of land; the 5
-│                   enums (EcStatus, LitigationStatus, etc.) are fixed lists
-│                   of allowed answers — an EC can only ever be CLEAN or
+├── model/          The "nouns" of the app: Parcel (a plot of land), User (an
+│                   account), ViewHistory (one recorded score check), plus the
+│                   5 enums (EcStatus, LitigationStatus, …) which are fixed
+│                   lists of allowed answers — an EC can only ever be CLEAN or
 │                   FLAGGED, nothing else.
 │
-├── repository/      One interface, ParcelRepository. Talks to the database.
-│                   You never write SQL here — Spring Data generates it.
+├── repository/      One interface per table (Parcel / User / ViewHistory).
+│                   Talks to the database — you never write SQL here, Spring
+│                   Data generates it from the method names.
 │
 ├── service/         The "brain." RiskScoringService takes a Parcel and
-│   └── factors/     produces a score by combining 5 independent checks.
-│                   The factors/ subfolder has one small class per check
-│                   (see section 7 for why it's split up this way).
+│   └── factors/     produces a score by combining 5 independent checks. The
+│                   factors/ subfolder has one small class per check (see
+│                   section 8 for why it's split up this way).
+│                   CustomUserDetailsService bridges User to Spring Security.
 │
-├── dto/              Shapes the backend's JSON requests and responses.
-│                   Keeps the database structure (Parcel) separate from
-│                   what actually goes out over the wire.
+├── dto/              Shapes the backend's JSON requests and responses. Keeps
+│                   the database structure (Parcel, User) separate from what
+│                   actually goes out over the wire — no password hash can
+│                   leak into a response, because no DTO has that field.
 │
-├── controller/       ParcelApiController — the only class that knows about
-│                   HTTP. Exposes GET and POST on /api/parcels.
+├── controller/       The only classes that know about HTTP:
+│                   • ParcelApiController  — GET/POST /api/parcels
+│                   • AuthController        — register / login / logout / me
+│                   • HistoryApiController  — GET /api/history
 │
-└── config/           DataSeeder — runs once on startup and inserts the 20
-                    sample parcels so there's something to look at.
+└── config/           SecurityConfig — which routes need a session, BCrypt setup.
+                    DataSeeder    — inserts the 20 sample parcels and the
+                                     demo account on startup.
 ```
 
-### 6b. Frontend — `src/main/resources/static/`
+### 7b. Frontend — `src/main/resources/static/`
 
-Plain files, no build step, served as-is by Spring Boot:
+Plain files, no build step, no npm, served as-is by Spring Boot. One HTML file
+and one JS file per screen, plus shared helpers:
 
 ```
 static/
-├── index.html      The parcel list page — the one you land on.
-├── parcel.html      Detail page for one property (loaded via ?id=N).
-├── add.html         "Add a property" form — try your own data.
-├── css/style.css     One stylesheet, shared by every page.
+├── index.html       Animated intro (auto-advances to login)
+├── login.html       Sign in
+├── register.html    Create an account
+├── dashboard.html   All properties — the main screen
+├── parcel.html      One property's full breakdown (?id=N)
+├── add.html         "Add a property" form
+├── history.html     Your past score checks
+│
+├── css/style.css    One stylesheet shared by every page
 └── js/
-    ├── common.js     Shared helpers + the plain-English factor glossary.
-    ├── list.js       Drives index.html.
-    ├── detail.js      Drives parcel.html.
-    └── add.js         Drives add.html.
+    ├── common.js     Shared helpers: requireAuth(), the nav bar, the SVG
+    │                 icon set, and the plain-English factor glossary.
+    ├── intro.js      index.html      ├── dashboard.js  dashboard.html
+    ├── login.js      login.html      ├── detail.js     parcel.html
+    ├── register.js   register.html   ├── add.js        add.html
+    └── history.js    history.html
 ```
 
-### 6c. Everything else
+### 7c. Everything else
 
 | File | What it's for |
 |---|---|
@@ -221,7 +280,7 @@ static/
 | `pom.xml` | Tells Maven which libraries this project depends on, and how to build it. |
 | `mvnw` / `mvnw.cmd` | Lets you build/run the project without installing Maven yourself — see [section 2](#2-running-it-yourself). |
 
-## 7. The design pattern behind the scoring
+## 8. The design pattern behind the scoring
 
 This is the part that's actually interesting from a software design point of
 view, so it's worth walking through slowly.
@@ -270,7 +329,52 @@ changing. In software design terms, this is the **Open/Closed Principle**:
 the scoring engine is *open* to adding new checks, but *closed* to needing
 modification when you do.
 
-## 8. Why rules instead of AI/ML
+## 9. How accounts and history work
+
+**Accounts.** Registration stores a username and a **BCrypt hash** of the
+password — the plain-text password is never stored, logged, or returned by any
+endpoint. Signing in creates an ordinary server-side session; the browser
+holds a `JSESSIONID` cookie and sends it automatically on every later request,
+so the frontend never has to manage a token.
+
+**How pages are protected.** Static files (every `.html`, `css/`, `js/`) are
+always servable — a browser must be able to load `login.html` before it can
+log in. The real gate is on the data: every `/api/parcels/**` and
+`/api/history/**` call requires a valid session. Each protected page calls
+`requireAuth()` in `common.js` on load, which asks `GET /api/auth/me` and
+bounces to `login.html` if that returns 401. So the app is secured at the API,
+not by hiding HTML files.
+
+**History.** Whenever a signed-in user opens `GET /api/parcels/{id}`, the
+backend writes a `ViewHistory` row — username, which parcel, and a *snapshot*
+of the score and risk band at that moment. Snapshotting is deliberate: History
+is a record of what you saw when you checked it, not a live re-score, so the
+History page never has to re-run the scoring engine to render a list.
+
+```mermaid
+sequenceDiagram
+    participant U as You
+    participant FE as Frontend
+    participant API as Backend
+    participant DB as H2
+
+    U->>FE: open parcel.html?id=6
+    FE->>API: GET /api/auth/me
+    API-->>FE: 200 {username}
+    FE->>API: GET /api/parcels/6
+    API->>DB: load parcel + write ViewHistory row
+    API-->>FE: score + 5 factor explanations
+    FE-->>U: detail page
+    U->>FE: click History
+    FE->>API: GET /api/history
+    API->>DB: rows WHERE username = you
+    API-->>FE: your checks, newest first
+```
+
+Queries are always scoped to the session's own username, so there is no way to
+read another account's history through the API.
+
+## 10. Why rules instead of AI/ML
 
 It would be possible to train a machine learning model to predict title risk
 instead of hand-writing these rules. Two reasons that's the wrong tool here:
@@ -287,11 +391,69 @@ instead of hand-writing these rules. Two reasons that's the wrong tool here:
    against the actual government records. A machine learning model's
    internal weights can't be checked against a legal document the same way.
 
-## 9. API reference
+## 11. API reference
 
 The backend is a plain JSON REST API. You can call it directly with `curl`,
 Postman, or from any other app — it doesn't know or care that the bundled
 frontend exists.
+
+Everything except the auth endpoints requires a session, so with `curl` you
+need a cookie jar:
+
+```bash
+# sign in once, keep the session in cookies.txt
+curl -c cookies.txt -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"demo","password":"demo1234"}'
+
+# then send it with every later call
+curl -b cookies.txt http://localhost:8080/api/parcels
+```
+
+<details>
+<summary><b>Auth</b> — <code>POST /api/auth/register</code>, <code>/login</code>, <code>/logout</code>, <code>GET /api/auth/me</code></summary>
+
+```bash
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"jane","password":"secret123"}'
+```
+
+All four return `{"username":"jane"}` on success (`/logout` returns an empty
+200). Registering also signs you in, so there's no second login step.
+
+| Situation | Status | Body `message` |
+|---|---|---|
+| Username under 3 chars | `400` | `Username must be at least 3 characters.` |
+| Password under 6 chars | `400` | `Password must be at least 6 characters.` |
+| Username already exists | `409` | `That username is already taken.` |
+| Wrong username/password | `401` | `Invalid username or password.` |
+| Calling `/me` with no session | `401` | `Not authenticated. Please log in.` |
+</details>
+
+<details>
+<summary><b>History</b> — <code>GET /api/history</code></summary>
+
+```bash
+curl -b cookies.txt http://localhost:8080/api/history
+```
+
+```json
+[
+  {
+    "id": 2,
+    "parcelId": 9,
+    "surveyNo": "45/2A",
+    "locationArea": "Anandapuram, Visakhapatnam",
+    "score": 46,
+    "riskBand": "medium",
+    "viewedAt": "2026-08-15T00:16:09.897025Z"
+  }
+]
+```
+
+Newest first, and always scoped to the signed-in account.
+</details>
 
 <details>
 <summary><code>GET /api/parcels</code> — list every parcel with its score</summary>
@@ -386,13 +548,15 @@ form over this same endpoint, so anything you can do through the UI you can
 also do with a script.
 </details>
 
-## 10. Tech stack
+## 12. Tech stack
 
 | Layer | Technology |
 |---|---|
 | Backend | Java 17, Spring Boot 3 (Spring Web, Spring Data JPA) |
+| Auth | Spring Security — session-based login, BCrypt password hashing |
 | Database | H2 (in-memory — no install, no setup) |
-| Frontend | Plain HTML, CSS, and JavaScript (`fetch` API) — no framework, no build step |
+| Frontend | Plain HTML, CSS, and JavaScript (`fetch` API) — no framework, no build step, no npm |
+| Icons | Hand-written inline SVG (no icon library, no emoji) |
 | Build tool | Maven (wrapper included, so a local Maven install isn't required) |
 
 ---

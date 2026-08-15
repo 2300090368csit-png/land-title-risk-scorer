@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Properties — Land Title Risk Scorer</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="app-nav"></div>
+
+<main>
+    <div class="page-head">
+        <div>
+            <h1>Properties</h1>
+            <p>
+                Every property below is scored 0&ndash;100 against five land due-diligence
+                checks used in Andhra Pradesh. Open any row for the full factor-by-factor
+                reasoning behind its score.
+            </p>
+        </div>
+        <a class="btn btn-primary" href="add.html" id="add-btn">Add property</a>
+    </div>
+
+    <div class="stats-row" id="stats-row"></div>
+
+    <div class="section-head">
+        <h2 id="count">Loading&hellip;</h2>
+        <span class="band-tag"><span class="band-dot low"></span>&gt;70 low</span>
+    </div>
+
+    <div class="table-wrap">
+        <table class="data">
+            <thead>
+            <tr>
+                <th>Survey no.</th>
+                <th>Location</th>
+                <th>Seller</th>
+                <th class="num">Score</th>
+                <th>Risk</th>
+            </tr>
+            </thead>
+            <tbody id="parcel-rows"></tbody>
+        </table>
+    </div>
+</main>
+
+<footer>Rule-based scoring across 5 weighted factors — no ML, fully explainable. Sample data is fictional.</footer>
+
+<script src="js/common.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -6,65 +6,22 @@
     <title>Land Title Risk Scorer</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="intro-body">
 
-<header class="hero">
-    <div class="hero-inner">
-        <div class="eyebrow">Land Title Risk Scorer</div>
-        <h1>Is this land safe to buy? Here's a score for that.</h1>
-        <p class="tagline">
-            Like a credit score, but for a plot of land's paperwork. Every property below is
-            checked against 5 real due-diligence categories used in Andhra Pradesh, and scored
-            0&ndash;100 &mdash; with a plain-English reason behind every point lost.
-        </p>
-
-        <p style="margin-top:1.25rem;">
-            <a class="primary-btn" href="add.html">&plus; Add your own property and get a live score</a>
-        </p>
-
-        <div class="how-it-works">
-            <div class="step">
-                <b>1&nbsp;&middot;&nbsp;5 checks</b>
-                We look at the property's Encumbrance Certificate, court/litigation status,
-                layout approval, RERA registration, and digital land record match.
-            </div>
-            <div class="step">
-                <b>2&nbsp;&middot;&nbsp;Weighted score</b>
-                Each check counts differently &mdash; a court case matters far more than a
-                data-entry mismatch &mdash; and they combine into one 0&ndash;100 score.
-            </div>
-            <div class="step">
-                <b>3&nbsp;&middot;&nbsp;Plain-English reasons</b>
-                Click any property to see exactly why it scored what it did, factor by factor
-                &mdash; no black box.
-            </div>
-        </div>
+<div class="intro-stage">
+    <svg class="intro-ring" viewBox="0 0 200 200">
+        <circle class="intro-ring-track" cx="100" cy="100" r="88"></circle>
+        <circle class="intro-ring-progress" cx="100" cy="100" r="88"></circle>
+    </svg>
+    <div class="intro-text">
+        <div class="intro-name">ARZA SRIRAM</div>
+        <div class="intro-rule"></div>
+        <div class="intro-tagline">Land Title Risk Scorer</div>
     </div>
-</header>
+</div>
 
-<main>
-    <section>
-        <p id="count">Loading properties&hellip;</p>
-        <div class="stats-row" id="stats-row"></div>
-        <div class="legend">
-            <span><span class="dot low"></span>Low risk &mdash; score above 70</span>
-            <span><span class="dot medium"></span>Medium risk &mdash; score 40&ndash;70</span>
-            <span><span class="dot high"></span>High risk &mdash; score below 40</span>
-        </div>
-    </section>
+<a href="login.html" class="intro-skip">Skip</a>
 
-    <section>
-        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.75rem; margin-bottom:.9rem;">
-            <h2 style="margin:0;">All properties</h2>
-            <a href="add.html" style="font-size:.85rem; font-weight:600;">&plus; Add a property</a>
-        </div>
-        <div class="parcel-grid" id="parcel-grid"></div>
-    </section>
-</main>
-
-<footer>Rule-based scoring across 5 weighted factors — no ML, fully explainable. Sample data is fictional.</footer>
-
-<script src="js/common.js"></script>
-<script src="js/list.js"></script>
+<script src="js/intro.js"></script>
 </body>
 </html>

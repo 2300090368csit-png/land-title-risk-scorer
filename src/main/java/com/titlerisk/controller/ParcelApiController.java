@@ -5,10 +5,14 @@ import com.titlerisk.dto.ParcelDetailResponse;
 import com.titlerisk.dto.ParcelMapper;
 import com.titlerisk.dto.ParcelSummaryResponse;
 import com.titlerisk.model.Parcel;
+import com.titlerisk.model.ViewHistory;
 import com.titlerisk.repository.ParcelRepository;
+import com.titlerisk.repository.ViewHistoryRepository;
+import com.titlerisk.service.RiskResult;
 import com.titlerisk.service.RiskScoringService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -32,10 +37,13 @@ public class ParcelApiController {
 
     private final ParcelRepository parcelRepository;
     private final RiskScoringService riskScoringService;
+    private final ViewHistoryRepository viewHistoryRepository;
 
-    public ParcelApiController(ParcelRepository parcelRepository, RiskScoringService riskScoringService) {
+    public ParcelApiController(ParcelRepository parcelRepository, RiskScoringService riskScoringService,
+                                ViewHistoryRepository viewHistoryRepository) {
         this.parcelRepository = parcelRepository;
         this.riskScoringService = riskScoringService;
+        this.viewHistoryRepository = viewHistoryRepository;
     }
 
     @GetMapping
@@ -46,10 +54,22 @@ public class ParcelApiController {
     }
 
     @GetMapping("/{id}")
-    public ParcelDetailResponse detail(@PathVariable Long id) {
+    public ParcelDetailResponse detail(@PathVariable Long id, Authentication authentication) {
         Parcel parcel = parcelRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No parcel with id " + id));
-        return ParcelMapper.toDetail(parcel, riskScoringService.score(parcel));
+        RiskResult result = riskScoringService.score(parcel);
+
+        // Every time a signed-in user looks up a property's score, that's exactly
+        // the moment the History page is meant to capture — so log it right here,
+        // rather than requiring the frontend to remember to make a second call.
+        if (authentication != null) {
+            viewHistoryRepository.save(new ViewHistory(
+                    authentication.getName(), parcel.getId(), parcel.getSurveyNo(),
+                    parcel.getLocationArea(), result.getRoundedScore(), result.getRiskBand(), Instant.now()
+            ));
+        }
+
+        return ParcelMapper.toDetail(parcel, result);
     }
 
     /**

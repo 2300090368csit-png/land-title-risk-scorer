@@ -1,6 +1,8 @@
 // Drives add.html: submits the form to POST /api/parcels and redirects to
 // the new property's detail page once the backend has scored it.
 
+requireAuth();
+
 document.getElementById("add-form").addEventListener("submit", async (event) => {
     event.preventDefault();
 

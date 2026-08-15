@@ -1,25 +1,46 @@
-// Drives the parcel detail page (parcel.html?id=N): loads one parcel's full
-// score breakdown and renders the gauge, the weighted contribution bar, and
-// a glossary-enriched card per factor.
+// Drives parcel.html (?id=N): loads one property's full score breakdown and
+// renders the gauge, the record facts, the weighted contribution bar, and a
+// glossary-enriched card per factor.
 
-/** Same banding the backend uses for the overall score, applied per-factor for the bar/card color. */
+/** Same banding the backend uses for the overall score, applied per-factor for card colour. */
 function bandFor(rawScore) {
     if (rawScore > 70) return "low";
     if (rawScore >= 40) return "medium";
     return "high";
 }
 
-function renderScoreSummary(parcel) {
+/** Turns an enum value like ACTIVE_SUIT into "Active suit" for display. */
+function humanizeEnum(value) {
+    const spaced = String(value).replace(/_/g, " ").toLowerCase();
+    return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+}
+
+function renderScorePanel(parcel) {
     document.getElementById("gauge-svg-slot").innerHTML = buildGaugeSvg(parcel.score, parcel.riskBand);
     document.getElementById("gauge-number").textContent = parcel.score;
 
-    const bandLabel = document.getElementById("band-label");
-    bandLabel.textContent = parcel.riskBand === "low" ? "Low risk"
-        : parcel.riskBand === "medium" ? "Medium risk"
-        : "High risk";
-    bandLabel.className = `score-badge ${parcel.riskBand}`;
+    const label = document.getElementById("band-label");
+    label.textContent = bandLabel(parcel.riskBand);
+    label.className = `score-pill ${parcel.riskBand}`;
 
     document.getElementById("verdict-text").textContent = verdictFor(parcel.riskBand);
+}
+
+function renderFacts(parcel) {
+    const facts = [
+        ["Survey number", parcel.surveyNo],
+        ["Location", parcel.locationArea],
+        ["Seller", parcel.sellerName],
+        ["Encumbrance certificate", humanizeEnum(parcel.ecStatus)],
+        ["Litigation", humanizeEnum(parcel.litigationStatus)],
+        ["Layout approval", humanizeEnum(parcel.layoutApproval)],
+        ["RERA", humanizeEnum(parcel.reraStatus)],
+        ["MeeBhoomi record", humanizeEnum(parcel.meeBhoomiMatch)]
+    ];
+
+    document.getElementById("facts").innerHTML = facts
+        .map(([k, v]) => `<div class="fact-row"><span class="k">${escapeHtml(k)}</span><span class="v">${escapeHtml(v)}</span></div>`)
+        .join("");
 }
 
 function renderContributionBar(factors) {
@@ -43,8 +64,8 @@ function renderContributionBar(factors) {
         item.className = "item";
         item.innerHTML = `
             <span class="swatch" style="background:${info.color}"></span>
-            <span>${info.icon} ${escapeHtml(factor.factorName)}</span>
-            <span class="amount">${contribution.toFixed(1)} pts</span>
+            <span>${escapeHtml(factor.factorName)}</span>
+            <span class="amount">${contribution.toFixed(1)}</span>
         `;
         legend.appendChild(item);
     }
@@ -56,21 +77,19 @@ function renderFactorCards(factors) {
 
     for (const factor of factors) {
         const info = factorInfo(factor.factorName);
-        const band = bandFor(factor.rawScore);
 
         const card = document.createElement("div");
         card.className = "factor-card";
-        card.style.borderLeftColor = info.color;
         card.innerHTML = `
             <div class="factor-head">
-                <div class="icon-chip" style="background:${info.color}22; color:${info.color}">${info.icon}</div>
+                <div class="factor-icon" style="background:${info.color}14; color:${info.color}">${info.icon}</div>
                 <div class="factor-titles">
                     <h3>${escapeHtml(factor.factorName)}</h3>
                     <div class="factor-blurb">${escapeHtml(info.blurb)}</div>
                 </div>
                 <div class="factor-stats">
-                    <div class="raw">${factor.rawScore.toFixed(0)}<span style="font-weight:400;color:var(--text-faint)">/100</span></div>
-                    <div>Weight: ${factor.weightPercent}%</div>
+                    <div class="raw">${factor.rawScore.toFixed(0)}<span>/100</span></div>
+                    <div class="weight">Weight ${factor.weightPercent}%</div>
                 </div>
             </div>
             <div class="factor-bar-track">
@@ -83,12 +102,15 @@ function renderFactorCards(factors) {
 }
 
 async function loadParcel() {
+    const username = await requireAuth();
+    if (!username) return;
+
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
     const main = document.querySelector("main");
 
     if (!id) {
-        main.innerHTML = '<div class="error-box">No property selected &mdash; go back and pick one from the list.</div>';
+        main.innerHTML = '<div class="empty-state"><strong>No property selected</strong>Go back and pick one from the list.</div>';
         return;
     }
 
@@ -97,22 +119,20 @@ async function loadParcel() {
         parcel = await fetchJson(`/api/parcels/${encodeURIComponent(id)}`);
     } catch (err) {
         if (err.status === 404) {
-            main.innerHTML = `<div class="error-box">No property found with id ${escapeHtml(id)}. <a href="/">Back to the list.</a></div>`;
+            main.innerHTML = `<div class="empty-state"><strong>Property not found</strong>No property with id ${escapeHtml(id)}. <a href="dashboard.html">Back to the list.</a></div>`;
         } else {
-            main.innerHTML = '<div class="error-box">Couldn\'t load this property &mdash; is the backend running?</div>';
+            main.innerHTML = '<div class="empty-state"><strong>Couldn\'t load this property</strong>Is the backend still running?</div>';
             console.error(err);
         }
         return;
     }
 
-    document.title = `Property ${parcel.surveyNo} — Land Title Risk Scorer`;
-    document.getElementById("page-tagline").textContent = `Survey No. ${parcel.surveyNo} — ${parcel.locationArea}`;
+    document.title = `${parcel.surveyNo} — Land Title Risk Scorer`;
+    document.getElementById("page-title").textContent = `Survey no. ${parcel.surveyNo}`;
+    document.getElementById("page-sub").textContent = `${parcel.locationArea} · Seller: ${parcel.sellerName}`;
 
-    document.getElementById("meta-seller").textContent = parcel.sellerName;
-    document.getElementById("meta-location").textContent = parcel.locationArea;
-    document.getElementById("meta-survey").textContent = parcel.surveyNo;
-
-    renderScoreSummary(parcel);
+    renderScorePanel(parcel);
+    renderFacts(parcel);
     renderContributionBar(parcel.factors);
     renderFactorCards(parcel.factors);
 }

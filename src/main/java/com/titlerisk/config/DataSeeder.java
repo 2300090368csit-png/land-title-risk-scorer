@@ -5,8 +5,11 @@ import com.titlerisk.model.LitigationStatus;
 import com.titlerisk.model.MeeBhoomiMatch;
 import com.titlerisk.model.Parcel;
 import com.titlerisk.model.ReraStatus;
+import com.titlerisk.model.User;
 import com.titlerisk.repository.ParcelRepository;
+import com.titlerisk.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -46,13 +49,20 @@ import static com.titlerisk.model.ReraStatus.REGISTERED;
 public class DataSeeder implements CommandLineRunner {
 
     private final ParcelRepository parcelRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public DataSeeder(ParcelRepository parcelRepository) {
+    public DataSeeder(ParcelRepository parcelRepository, UserRepository userRepository,
+                       PasswordEncoder passwordEncoder) {
         this.parcelRepository = parcelRepository;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) {
+        seedDemoAccount();
+
         List<Parcel> parcels = List.of(
 
                 // ---- Clean across the board (expect ~85-100) ----------------------
@@ -105,5 +115,17 @@ public class DataSeeder implements CommandLineRunner {
         );
 
         parcelRepository.saveAll(parcels);
+    }
+
+    /**
+     * Seeds one demo account (username {@code demo}, password {@code demo1234})
+     * so anyone cloning the repo can sign in immediately without registering
+     * first — the login page hints at these credentials. Registering a real
+     * account works exactly the same way, this is just a convenience.
+     */
+    private void seedDemoAccount() {
+        if (!userRepository.existsByUsername("demo")) {
+            userRepository.save(new User("demo", passwordEncoder.encode("demo1234")));
+        }
     }
 }

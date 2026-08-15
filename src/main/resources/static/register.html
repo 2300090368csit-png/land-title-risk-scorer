@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Create account — Land Title Risk Scorer</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<main class="auth-page">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <span class="app-nav-mark">LT</span>
+            Land Title Risk Scorer
+        </div>
+
+        <h1>Create an account</h1>
+        <p class="sub">Your score-check history is kept private to your account.</p>
+
+        <p class="form-error" id="form-error" hidden></p>
+
+        <form id="register-form" novalidate>
+            <div class="field-group">
+                <label for="username">Username <span class="field-hint">&mdash; min 3 characters</span></label>
+                <input type="text" id="username" name="username" autocomplete="username" minlength="3" required>
+            </div>
+            <div class="field-group">
+                <label for="password">Password <span class="field-hint">&mdash; min 6 characters</span></label>
+                <input type="password" id="password" name="password" autocomplete="new-password" minlength="6" required>
+            </div>
+            <div class="field-group">
+                <label for="confirmPassword">Confirm password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block" id="submit-btn">Create account</button>
+        </form>
+
+        <p class="auth-switch">Already have an account? <a href="login.html">Sign in</a></p>
+    </div>
+
+    <p class="auth-foot">Sample data is fictional. Built by Arza Sriram.</p>
+</main>
+
+<script src="js/common.js"></script>
+<script src="js/register.js"></script>
+</body>
+</html>

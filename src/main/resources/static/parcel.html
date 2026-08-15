@@ -3,63 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Parcel — Land Title Risk Scorer</title>
+    <title>Property — Land Title Risk Scorer</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<header class="hero">
-    <div class="hero-inner">
-        <a class="back-link" href="/">&larr; Back to all properties</a>
-        <div class="eyebrow">Property detail</div>
-        <h1 id="page-tagline">Loading&hellip;</h1>
-        <p class="tagline">
-            The gauge below is one score built from 5 separate checks, each weighted by how
-            much it actually matters legally. Scroll down to see exactly why each one scored
-            the way it did.
-        </p>
-    </div>
-</header>
+<div id="app-nav"></div>
 
 <main>
-    <section class="parcel-meta">
-        <div class="field">
-            <div class="label">Seller</div>
-            <div class="value" id="meta-seller">&ndash;</div>
-        </div>
-        <div class="field">
-            <div class="label">Location</div>
-            <div class="value" id="meta-location">&ndash;</div>
-        </div>
-        <div class="field">
-            <div class="label">Survey No.</div>
-            <div class="value" id="meta-survey">&ndash;</div>
-        </div>
-    </section>
+    <a class="back-link" href="dashboard.html">&larr; All properties</a>
 
-    <section class="score-summary">
-        <div class="gauge-wrap">
-            <div id="gauge-svg-slot"></div>
-            <div class="gauge-center">
-                <div class="num" id="gauge-number">&ndash;</div>
-                <div class="out-of">out of 100</div>
+    <div class="page-head">
+        <div>
+            <h1 id="page-title">Loading&hellip;</h1>
+            <p id="page-sub"></p>
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        <div class="panel score-panel">
+            <div class="gauge-wrap">
+                <div id="gauge-svg-slot"></div>
+                <div class="gauge-center">
+                    <div class="num" id="gauge-number">&ndash;</div>
+                    <div class="out-of">Risk score</div>
+                </div>
             </div>
+            <span class="score-pill" id="band-label">&ndash;</span>
+            <p class="verdict-text" id="verdict-text"></p>
         </div>
-        <div class="verdict">
-            <span class="score-badge" id="band-label">&ndash;</span>
-            <p id="verdict-text">Loading&hellip;</p>
+
+        <div class="panel">
+            <h2>Property record</h2>
+            <div class="facts" id="facts"></div>
+        </div>
+    </div>
+
+    <section>
+        <h2>How the score breaks down</h2>
+        <div class="panel">
+            <div class="contribution-bar" id="contribution-bar"></div>
+            <div class="contribution-legend" id="contribution-legend"></div>
         </div>
     </section>
 
     <section>
-        <h2>How this score breaks down</h2>
-        <div class="contribution-bar" id="contribution-bar"></div>
-        <div class="contribution-legend" id="contribution-legend"></div>
-    </section>
-
-    <section>
-        <h2>The 5 checks, in detail</h2>
-        <div id="factor-cards"></div>
+        <h2>The five checks</h2>
+        <div class="factor-list" id="factor-cards"></div>
     </section>
 </main>
 

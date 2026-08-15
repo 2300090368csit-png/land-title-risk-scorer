@@ -38,6 +38,12 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
+        <!-- Authentication (login/register, session-based, BCrypt password hashing) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
         <!-- Zero-setup in-memory database -->
         <dependency>
             <groupId>com.h2database</groupId>
