@@ -11,7 +11,7 @@ import jakarta.persistence.Id;
  * A single land parcel under title due-diligence review.
  *
  * <p>This is a plain JPA entity holding raw facts about the parcel (who is
- * selling it, where it is, and the outcome of the five due-diligence checks).
+ * selling it, where it is, and the outcome of the nine due-diligence checks).
  * It deliberately contains no scoring logic — that responsibility belongs to
  * {@link com.titlerisk.service.RiskScoringService} and the individual
  * {@code RiskFactor} implementations, keeping this class a simple data holder.</p>
@@ -33,13 +33,25 @@ public class Parcel {
     private String locationArea;
 
     @Enumerated(EnumType.STRING)
+    private ProhibitedPropertyStatus prohibitedStatus;
+
+    @Enumerated(EnumType.STRING)
+    private LandClassification landClassification;
+
+    @Enumerated(EnumType.STRING)
     private EcStatus ecStatus;
 
     @Enumerated(EnumType.STRING)
     private LitigationStatus litigationStatus;
 
     @Enumerated(EnumType.STRING)
+    private PattadarMatch pattadarMatch;
+
+    @Enumerated(EnumType.STRING)
     private LayoutApprovalStatus layoutApproval;
+
+    @Enumerated(EnumType.STRING)
+    private NalaStatus nalaStatus;
 
     @Enumerated(EnumType.STRING)
     private ReraStatus reraStatus;
@@ -52,15 +64,20 @@ public class Parcel {
     }
 
     public Parcel(String surveyNo, String sellerName, String locationArea,
-                  EcStatus ecStatus, LitigationStatus litigationStatus,
-                  LayoutApprovalStatus layoutApproval, ReraStatus reraStatus,
-                  MeeBhoomiMatch meeBhoomiMatch) {
+                  ProhibitedPropertyStatus prohibitedStatus, LandClassification landClassification,
+                  EcStatus ecStatus, LitigationStatus litigationStatus, PattadarMatch pattadarMatch,
+                  LayoutApprovalStatus layoutApproval, NalaStatus nalaStatus,
+                  ReraStatus reraStatus, MeeBhoomiMatch meeBhoomiMatch) {
         this.surveyNo = surveyNo;
         this.sellerName = sellerName;
         this.locationArea = locationArea;
+        this.prohibitedStatus = prohibitedStatus;
+        this.landClassification = landClassification;
         this.ecStatus = ecStatus;
         this.litigationStatus = litigationStatus;
+        this.pattadarMatch = pattadarMatch;
         this.layoutApproval = layoutApproval;
+        this.nalaStatus = nalaStatus;
         this.reraStatus = reraStatus;
         this.meeBhoomiMatch = meeBhoomiMatch;
     }
@@ -97,6 +114,22 @@ public class Parcel {
         this.locationArea = locationArea;
     }
 
+    public ProhibitedPropertyStatus getProhibitedStatus() {
+        return prohibitedStatus;
+    }
+
+    public void setProhibitedStatus(ProhibitedPropertyStatus prohibitedStatus) {
+        this.prohibitedStatus = prohibitedStatus;
+    }
+
+    public LandClassification getLandClassification() {
+        return landClassification;
+    }
+
+    public void setLandClassification(LandClassification landClassification) {
+        this.landClassification = landClassification;
+    }
+
     public EcStatus getEcStatus() {
         return ecStatus;
     }
@@ -113,12 +146,28 @@ public class Parcel {
         this.litigationStatus = litigationStatus;
     }
 
+    public PattadarMatch getPattadarMatch() {
+        return pattadarMatch;
+    }
+
+    public void setPattadarMatch(PattadarMatch pattadarMatch) {
+        this.pattadarMatch = pattadarMatch;
+    }
+
     public LayoutApprovalStatus getLayoutApproval() {
         return layoutApproval;
     }
 
     public void setLayoutApproval(LayoutApprovalStatus layoutApproval) {
         this.layoutApproval = layoutApproval;
+    }
+
+    public NalaStatus getNalaStatus() {
+        return nalaStatus;
+    }
+
+    public void setNalaStatus(NalaStatus nalaStatus) {
+        this.nalaStatus = nalaStatus;
     }
 
     public ReraStatus getReraStatus() {

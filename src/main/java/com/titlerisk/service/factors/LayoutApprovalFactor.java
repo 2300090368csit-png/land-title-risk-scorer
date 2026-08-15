@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 /**
  * Checks layout approval status with the relevant Andhra Pradesh planning
  * authority — APCRDA for parcels in the Amaravati capital region, VMRDA
- * around Visakhapatnam, or DTCP elsewhere in the state. Weight: 20%.
+ * around Visakhapatnam, or DTCP elsewhere in the state. Weight: 9%.
  *
  * An unapproved layout doesn't necessarily mean the title itself is bad, but
  * it means no authority has signed off on the plotting/roads/open space of
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LayoutApprovalFactor implements RiskFactor {
 
-    private static final double WEIGHT = 0.20;
+    private static final double WEIGHT = 0.09;
 
     @Override
     public double getWeight() {

@@ -9,7 +9,7 @@ a 0–100 "title risk score" — like a credit score, but for whether the paperw
 <img alt="Java 17" src="https://img.shields.io/badge/Java-17-b07219">
 <img alt="Spring Boot 3" src="https://img.shields.io/badge/Spring%20Boot-3-6DB33F">
 <img alt="Spring Security" src="https://img.shields.io/badge/Spring%20Security-session%20auth-6DB33F">
-<img alt="Tests" src="https://img.shields.io/badge/tests-36%20passing-brightgreen">
+<img alt="Tests" src="https://img.shields.io/badge/tests-50%20passing-brightgreen">
 <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue"></a>
 <a href="https://land-title-risk-scorer.onrender.com/"><img alt="Live demo" src="https://img.shields.io/badge/demo-online-success"></a>
 </p>
@@ -34,7 +34,7 @@ Hosted on a free instance, so if it has been idle a while the first page can tak
 2. [Running it yourself](#2-running-it-yourself)
 &nbsp;&nbsp;&nbsp;2b. [Deploying it so other people can open a link](#2b-deploying-it-so-other-people-can-open-a-link)
 3. [Screens and how you move between them](#3-screens-and-how-you-move-between-them)
-4. [The 5 things it checks (in plain English)](#4-the-5-things-it-checks-in-plain-english)
+4. [The 9 things it checks (in plain English)](#4-the-9-things-it-checks-in-plain-english)
 5. [How it works, step by step](#5-how-it-works-step-by-step)
 6. [A worked example](#6-a-worked-example)
 7. [Project structure, explained](#7-project-structure-explained)
@@ -54,7 +54,7 @@ sell it, and that nothing nasty is hiding in the paperwork (an old unpaid loan
 against the land, a court case, etc.).
 
 This app automates the *first pass* of that check. You feed it a parcel of land
-(who's selling it, where it is, and the outcome of 5 standard checks), and it
+(who's selling it, where it is, and the outcome of 9 standard checks), and it
 gives back:
 
 - **A single score from 0 to 100** — higher is safer, exactly like a credit score.
@@ -63,7 +63,7 @@ gives back:
 It comes pre-loaded with 20 realistic sample parcels from around Andhra
 Pradesh, so you can open it and start clicking around immediately — nothing to
 configure, no database to install. There's also an **"Add a property"** page
-where you can enter your own combination of the 5 checks and get a real,
+where you can enter your own combination of the 9 checks and get a real,
 live-computed score back — it runs through the exact same backend logic as
 every seeded property, nothing about it is pre-canned.
 
@@ -188,45 +188,60 @@ flowchart LR
 | `add.html` | Enter your own five check outcomes and get a live score. |
 | `history.html` | Every property *you* have checked, most recent first. |
 
-## 4. The 5 things it checks (in plain English)
+## 4. The 9 things it checks (in plain English)
 
 Each of these is a real category of due diligence used when buying land in
 India. If any of these terms are new to you, here's the plain-language version:
 
 | # | Factor | Weight | What it actually means |
 |---|---|---|---|
-| 1 | **Encumbrance Certificate (EC)** | 30% | A government-issued document listing every loan, mortgage, or legal claim ever registered against this exact piece of land. If it's "flagged," there's an old unresolved claim still attached to the land — and that claim follows the *land*, not the seller, so a buyer inherits it. |
-| 2 | **Litigation status** | 25% | Is anyone currently suing over this land, or has a court case been filed? If yes, the property is called **"sub judice"** — a court could freeze the sale or even undo it later, no matter how clean everything else looks. |
-| 3 | **Layout approval** | 20% | If the land is part of a residential layout (plots, roads, etc.), has the relevant government planning authority actually approved that layout? Andhra Pradesh doesn't have one single authority for this — it's **CRDA** near the new capital (Amaravati), **VMRDA** around Visakhapatnam, or **DTCP** elsewhere. An unapproved layout can block future construction permits. |
-| 4 | **AP RERA registration** | 15% | RERA is an Indian law that requires real estate *projects being sold to the public* to register with the state regulator. It gives buyers legal recourse if the builder doesn't deliver. A plain resale of agricultural land doesn't need this — only actively marketed projects do. |
-| 5 | **MeeBhoomi digital record match** | 10% | MeeBhoomi is Andhra Pradesh's official website where land records are stored digitally. This check asks: does the paper deed match what the government's own database says? A mismatch is usually a data-entry slip, not fraud, but it has to be fixed before registration. |
+| 1 | **Section 22A prohibited list** | 18% | The state can bar a survey number from being registered at all — typically government land, land assigned to the poor, endowment, wakf or forest land. If a parcel is listed, the Sub-Registrar's system **rejects the sale deed outright**, no officer can override it, and banks decline loans against it automatically. Checked on the IGRS AP portal. |
+| 2 | **Land classification (ROR-1B)** | 16% | Whether the land is ordinary private patta, or something that cannot be privately sold. Assigned land (D-Patta) transferred without the Collector's permission is **void** under the AP Assigned Lands Act 1977, and the government can resume it even after several resales. Government/poramboke, endowment and wakf land cannot pass into private hands at all. |
+| 3 | **Encumbrance Certificate (EC)** | 16% | A government record listing every loan, mortgage, or legal claim ever registered against this exact piece of land. A claim follows the *land*, not the seller, so a buyer inherits it. |
+| 4 | **Litigation status** | 14% | Is anyone currently suing over this land? If so the property is **"sub judice"** — a court can freeze the sale or unwind it later, no matter how clean everything else looks. |
+| 5 | **Pattadar / ROR-1B ownership** | 12% | Is the person selling actually the owner recorded in the government register? If not, they may be selling on an unregistered power of attorney, which the Supreme Court held in *Suraj Lamp* conveys **no title**. |
+| 6 | **Layout approval** | 9% | Has the relevant planning authority approved the layout? AP has no single body — it's **CRDA** near Amaravati, **VMRDA** around Visakhapatnam, or **DTCP** elsewhere. Unapproved layouts block construction permits and bank finance. |
+| 7 | **NALA conversion** | 6% | Agricultural land must be formally converted before it can be built on. Building on unconverted land is illegal, and a refused conversion often reveals a deeper problem with the land's status. |
+| 8 | **AP RERA registration** | 5% | Required for projects marketed to the public; gives buyers legal recourse. Doesn't apply to a plain land resale. |
+| 9 | **MeeBhoomi record match** | 4% | Do the paper documents agree with the state's digital land record? Usually a data-entry slip rather than fraud, but it has to be fixed before registration. |
 
-The weights (30/25/20/15/10) add up to 100% and reflect how much legal weight
-each check actually carries in practice — the EC and litigation status matter
-far more than a website data-entry mismatch.
+The weights add up to 100% and reflect how much legal weight each check
+actually carries. The ordering is deliberate: checks 1 and 2 ask whether the
+land can lawfully be sold **at all**, which is a prior question to checks 3-5
+asking whether the title is clean, which in turn precede checks 6-9 about what
+you may *do* with the land once you own it.
 
-### One rule that isn't just a weight
+### Some rules aren't weights at all — they're ceilings
 
-A purely additive score has a blind spot, and this project hit it. A parcel
-that was clean on all four documentary checks but had an **active lawsuit**
-scored 76 — which crossed the threshold and displayed as *"Low risk."* A
-property a court can freeze should never read low risk, however tidy the rest
-of the file is.
+A purely additive score has a blind spot, and this project hit it hard. A
+parcel clean on every documentary check but with an **active lawsuit** scored
+76 and displayed as *"Low risk."* A property a court can freeze should never
+read low risk, however tidy the rest of the file is.
 
-So an active suit now imposes a **ceiling** of 45 on the final score, not just
-a deduction. Two deliberate details:
+Addition simply cannot express *"this one thing overrides everything else."*
+So three conditions impose a **ceiling** on the final score rather than a
+deduction:
 
-- The ceiling is **45, not 0** — it lands in "medium", because a suit may prove
-  frivolous, and forcing an otherwise-clean parcel into the same band as one
-  failing every check would overstate it.
-- The cap is **explained on screen**, showing both the capped figure and the
-  weighted total it replaced ("weighted total was 76"), so the number on the
-  gauge never contradicts the arithmetic in the breakdown below it.
+| Condition | Ceiling | Why |
+|---|---|---|
+| On the Section 22A prohibited list | **5** | Registration is legally blocked. No combination of clean paperwork makes the land purchasable. |
+| Government / endowment / wakf land | **5** | Cannot pass into private ownership at all. |
+| Assigned land (D-Patta) | **10** | Sale without the Collector's permission is void — marginally above the inalienable categories, since assignment can be regularised. |
+| Active lawsuit | **45** | Deliberately lands in "medium", not "high": a court can freeze the sale, so it must never read low risk, but a suit may prove frivolous. |
+
+The effect is visible in the seeded data. Parcel `301/A` has flawless
+paperwork and scores **82 on the weighted sum** — but it's on the 22A list, so
+it reports **5**. Parcel `62/1B` is similarly clean at 84, but it's assigned
+land, so it reports **10**.
+
+Every cap is **explained on screen**, showing both the capped figure and the
+weighted total it replaced, so the gauge never contradicts the arithmetic in
+the breakdown below it.
 
 Architecturally the ceiling rides on `FactorScore`, not on the `RiskFactor`
-interface — so `LitigationFactor` declares it, `RiskScoringService` just
-applies whichever ceiling is strictest, and a future factor can introduce one
-without either of them changing.
+interface. Each factor declares its own; `RiskScoringService` just applies
+whichever is strictest and still names no concrete factor — so a tenth factor
+could introduce a ceiling without either of them changing.
 
 ## 5. How it works, step by step
 
@@ -255,7 +270,7 @@ sequenceDiagram
 ```
 
 Click into any row and the same thing happens again for that one parcel, with
-the full breakdown of all 5 factors instead of just the total.
+the full breakdown of all 9 factors instead of just the total.
 
 The important part: **the backend and frontend only ever talk in JSON.** The
 backend has no idea what the page looks like — it just answers questions like
@@ -268,25 +283,28 @@ would talk to the same backend, too.
 Let's score one real parcel from the seeded data by hand, so you can see
 there's no hidden logic — it's just multiplication and addition.
 
-**Parcel `19/2` — Machilipatnam, Krishna:**
+**Parcel `301/A` — Bhogapuram, Vizianagaram.** Every document is in order:
 
-| Factor | Status | Raw score (0–100) | Weight | Contribution |
+| Factor | Status | Raw | Weight | Contribution |
 |---|---|---|---|---|
-| Encumbrance Certificate | Flagged | 15 | × 0.30 | 4.5 |
-| Litigation | Active court case | 5 | × 0.25 | 1.25 |
-| Layout approval | Unapproved | 10 | × 0.20 | 2.0 |
-| AP RERA | Not registered | 30 | × 0.15 | 4.5 |
-| MeeBhoomi match | Mismatch | 25 | × 0.10 | 2.5 |
-| | | | **Total** | **14.75 → rounds to 15** |
+| Section 22A prohibited list | **Listed** | 0 | × 0.18 | 0.0 |
+| Land classification | Private patta | 100 | × 0.16 | 16.0 |
+| Encumbrance Certificate | Clean | 100 | × 0.16 | 16.0 |
+| Litigation | None | 100 | × 0.14 | 14.0 |
+| Pattadar / ROR-1B | Matched | 100 | × 0.12 | 12.0 |
+| Layout approval | Approved | 100 | × 0.09 | 9.0 |
+| NALA conversion | Converted | 100 | × 0.06 | 6.0 |
+| AP RERA | Registered | 100 | × 0.05 | 5.0 |
+| MeeBhoomi match | Matched | 100 | × 0.04 | 4.0 |
+| | | | **Weighted total** | **82** |
+| | | | **Ceiling (22A listed)** | **5** |
 
-That "15" is exactly what you'll see on the list page for that parcel — red,
-because it's under 40. Open its detail page in the running app and you'll see
-these same 5 numbers, plus the plain-English reason behind each one.
+Eight of the nine checks are perfect. The weighted sum is 82, which would have
+displayed as *"Low risk"* — and would have been dangerously wrong, because a
+22A listing means the Sub-Registrar cannot register the sale at all. The
+ceiling drops it to **5**, and the detail page states why.
 
-The active-suit ceiling doesn't change this one: 14.75 is already far below
-45, so there's nothing to cap. It only bites where clean paperwork would
-otherwise have carried a litigated parcel over the line — parcel `33/1A`
-totals 76 on the weighted sum and is capped to 45.
+That gap between 82 and 5 is the entire argument for having ceilings.
 
 ## 7. Project structure, explained
 
@@ -312,7 +330,7 @@ com.titlerisk
 │                   Data generates it from the method names.
 │
 ├── service/         The "brain." RiskScoringService takes a Parcel and
-│   └── factors/     produces a score by combining 5 independent checks. The
+│   └── factors/     produces a score by combining 9 independent checks. The
 │                   factors/ subfolder has one small class per check (see
 │                   section 8 for why it's split up this way).
 │                   CustomUserDetailsService bridges User to Spring Security.
@@ -380,10 +398,10 @@ switch) for every factor, something like:
 double score = 0;
 if (ec == CLEAN) score += 30; else score += 4.5;
 if (litigation == NONE) score += 25; else if (litigation == PENDING) score += 12.5; ...
-// ...and so on for all 5 factors, all tangled together in one method.
+// ...and so on for all 9 factors, all tangled together in one method.
 ```
 
-The problem: every time you add a 6th check (say, a boundary survey dispute),
+The problem: every time you add a 10th check (say, a coastal regulation zone check),
 you have to open this method and edit it, right next to four other checks
 that have nothing to do with your change. It gets messy fast, and it's easy
 to break an existing check by accident.
@@ -409,7 +427,7 @@ to break an existing check by accident.
    }
    ```
 
-The payoff: to add a 6th factor, you write **one new file** and mark it
+The payoff: to add a 10th factor, you write **one new file** and mark it
 `@Component`. Spring finds it automatically and `RiskScoringService` starts
 including it in the total — without a single line of `RiskScoringService`
 changing. In software design terms, this is the **Open/Closed Principle**:
@@ -646,7 +664,7 @@ also do with a script.
 | Database | H2 (in-memory — no install, no setup) |
 | Frontend | Plain HTML, CSS, and JavaScript (`fetch` API) — no framework, no build step, no npm |
 | Icons | Hand-written inline SVG (no icon library, no emoji) |
-| Testing | JUnit 5 — 36 tests, run with `mvnw.cmd test` |
+| Testing | JUnit 5 — 50 tests, run with `mvnw.cmd test` |
 | Build tool | Maven (wrapper included, so a local Maven install isn't required) |
 
 ---

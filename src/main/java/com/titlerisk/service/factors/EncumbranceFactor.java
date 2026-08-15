@@ -9,14 +9,15 @@ import org.springframework.stereotype.Component;
  * record of every registered transaction, mortgage, and lien against a survey
  * number over its recorded history.
  *
- * <p>This is the heaviest-weighted factor (30%) because the EC is the primary
- * documentary evidence of a clean chain of title; almost every other check is
- * secondary to what the EC itself shows.</p>
+ * <p>Weighted 16%. The EC is the primary documentary evidence of a clean chain
+ * of title, and is the heaviest of the checks that assume the land is saleable
+ * at all — only the 22A listing and land classification outrank it, because
+ * those decide whether there is anything lawful to buy in the first place.</p>
  */
 @Component
 public class EncumbranceFactor implements RiskFactor {
 
-    private static final double WEIGHT = 0.30;
+    private static final double WEIGHT = 0.16;
 
     @Override
     public double getWeight() {

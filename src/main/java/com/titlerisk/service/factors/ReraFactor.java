@@ -6,13 +6,13 @@ import org.springframework.stereotype.Component;
 
 /**
  * Checks RERA (Real Estate Regulation and Development Act, 2016) registration.
- * Weight: 15% — lower than the other factors because RERA is a marketing/sale
- * compliance requirement, not a title-history check like the EC or litigation.
+ * Weight: 5% — low because RERA is a marketing/sale compliance requirement
+ * rather than a title check, and doesn't apply to a plain land resale at all.
  */
 @Component
 public class ReraFactor implements RiskFactor {
 
-    private static final double WEIGHT = 0.15;
+    private static final double WEIGHT = 0.05;
 
     @Override
     public double getWeight() {

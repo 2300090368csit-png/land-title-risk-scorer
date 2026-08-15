@@ -85,9 +85,13 @@ public class ParcelApiController {
                 request.surveyNo().trim(),
                 request.sellerName().trim(),
                 request.locationArea().trim(),
+                request.prohibitedStatus(),
+                request.landClassification(),
                 request.ecStatus(),
                 request.litigationStatus(),
+                request.pattadarMatch(),
                 request.layoutApproval(),
+                request.nalaStatus(),
                 request.reraStatus(),
                 request.meeBhoomiMatch()
         );
@@ -106,9 +110,13 @@ public class ParcelApiController {
         requireText(request.surveyNo(), "Survey number");
         requireText(request.sellerName(), "Seller name");
         requireText(request.locationArea(), "Location");
+        requireNotNull(request.prohibitedStatus(), "Section 22A prohibited list status");
+        requireNotNull(request.landClassification(), "Land classification");
         requireNotNull(request.ecStatus(), "Encumbrance Certificate status");
         requireNotNull(request.litigationStatus(), "Litigation status");
+        requireNotNull(request.pattadarMatch(), "Pattadar / ROR-1B status");
         requireNotNull(request.layoutApproval(), "Layout approval status");
+        requireNotNull(request.nalaStatus(), "NALA conversion status");
         requireNotNull(request.reraStatus(), "RERA status");
         requireNotNull(request.meeBhoomiMatch(), "MeeBhoomi match status");
     }

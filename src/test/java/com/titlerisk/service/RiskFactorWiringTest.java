@@ -27,9 +27,9 @@ class RiskFactorWiringTest {
     private List<RiskFactor> injectedFactors;
 
     @Test
-    @DisplayName("Spring auto-collects all five RiskFactor beans")
+    @DisplayName("Spring auto-collects all nine RiskFactor beans")
     void allFactorsAreDiscovered() {
-        assertEquals(5, injectedFactors.size());
+        assertEquals(9, injectedFactors.size());
     }
 
     @Test

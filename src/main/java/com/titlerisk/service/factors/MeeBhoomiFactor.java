@@ -6,14 +6,15 @@ import org.springframework.stereotype.Component;
 
 /**
  * Cross-checks the parcel against MeeBhoomi, Andhra Pradesh's digital land
- * records portal. Weight: 10% — the lightest factor, since a mismatch is
- * usually a data-entry/record-keeping problem rather than a defect in the
- * underlying title itself, but it's still worth flagging before a sale.
+ * records portal. Weight: 4% — the lightest factor, since a mismatch here is
+ * usually a data-entry problem rather than a title defect. The sharper
+ * ownership question is handled by PattadarFactor, which asks whether the
+ * seller is the recorded pattadar at all.
  */
 @Component
 public class MeeBhoomiFactor implements RiskFactor {
 
-    private static final double WEIGHT = 0.10;
+    private static final double WEIGHT = 0.04;
 
     @Override
     public double getWeight() {

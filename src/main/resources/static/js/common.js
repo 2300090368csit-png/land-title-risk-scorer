@@ -27,7 +27,7 @@ function escapeHtml(value) {
  * Line icons, drawn as inline SVG rather than emoji.
  *
  * Emoji render differently on every OS (and read as informal), so each of the
- * 5 factors gets a real drawn glyph instead. They inherit `currentColor`, so
+ * nine factors gets a real drawn glyph instead. They inherit `currentColor`, so
  * the same markup picks up whichever factor colour it's placed in.
  */
 const ICONS = {
@@ -41,6 +41,14 @@ const ICONS = {
     shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>',
     // map — MeeBhoomi digital record
     map: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><path d="M8 2v16"/><path d="M16 6v16"/></svg>',
+    // ban / prohibited — Section 22A listing
+    ban: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>',
+    // landmark / classification of land
+    landmark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M12 3L2 9h20z"/><path d="M5 9v12"/><path d="M12 9v12"/><path d="M19 9v12"/></svg>',
+    // person / recorded owner
+    user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 16 0v1"/></svg>',
+    // sprout / agricultural conversion
+    sprout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V11"/><path d="M12 11C12 7 9 4 5 4c0 4 3 7 7 7z"/><path d="M12 14c0-3 2-6 6-6 0 3-2 6-6 6z"/></svg>',
     // fallback
     search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>',
     arrowLeft: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:.9em;height:.9em"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>',
@@ -48,7 +56,7 @@ const ICONS = {
 };
 
 /**
- * Plain-English glossary for each of the 5 factors the backend can return.
+ * Plain-English glossary for each of the nine factors the backend can return.
  * This is what turns "RERA Registration" from jargon into something a
  * first-time visitor understands at a glance — an icon, an identity colour
  * (used consistently in the bar chart and card accents), and a one-line
@@ -56,9 +64,19 @@ const ICONS = {
  * explanation the backend already provides.
  */
 const FACTOR_INFO = {
+    "Section 22A Prohibited List": {
+        icon: ICONS.ban,
+        color: "#9f1239",
+        blurb: "Whether the state has blocked this survey number from being registered at all."
+    },
+    "Land Classification": {
+        icon: ICONS.landmark,
+        color: "#7c2d12",
+        blurb: "Whether this is private land, or assigned/government/endowment land that cannot be sold."
+    },
     "Encumbrance Certificate": {
         icon: ICONS.document,
-        color: "#1e40af",
+        color: "#0e7490",
         blurb: "Government record of any loan or legal claim still attached to this land."
     },
     "Litigation Status": {
@@ -76,6 +94,16 @@ const FACTOR_INFO = {
         color: "#b91c1c",
         blurb: "Registration under India's Real Estate Regulation Act, required for marketed projects."
     },
+    "Pattadar / ROR-1B Ownership": {
+        icon: ICONS.user,
+        color: "#1e40af",
+        blurb: "Whether the seller is the owner actually recorded in the government land register."
+    },
+    "NALA Conversion": {
+        icon: ICONS.sprout,
+        color: "#3f6212",
+        blurb: "Whether agricultural land has been legally converted for building use."
+    },
     "MeeBhoomi Digital Record": {
         icon: ICONS.map,
         color: "#a16207",
@@ -90,7 +118,7 @@ function factorInfo(factorName) {
 
 /** One short sentence translating a risk band into plain advice. */
 function verdictFor(riskBand) {
-    if (riskBand === "low") return "Paperwork looks clean across all five checks. A reasonable candidate to proceed with standard legal verification.";
+    if (riskBand === "low") return "Clean across all nine checks. A reasonable candidate to proceed with standard legal verification.";
     if (riskBand === "medium") return "Some real issues found. Review the flagged checks below before committing to this property.";
     return "Multiple serious flags. A full legal review is strongly recommended before taking this any further.";
 }

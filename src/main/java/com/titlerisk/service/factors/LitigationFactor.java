@@ -7,14 +7,15 @@ import org.springframework.stereotype.Component;
 /**
  * Checks whether a parcel is currently or recently tangled up in a court case.
  *
- * Weighted 25% — second only to the EC. A property that is "sub judice" is
- * risky no matter how tidy its paperwork otherwise looks, because a court
- * can still freeze the property or unwind a sale that already went through.
+ * Weighted 14%. A property that is "sub judice" is risky no matter how tidy
+ * its paperwork otherwise looks, because a court can still freeze the property
+ * or unwind a sale that already went through — which is why an active suit
+ * imposes a ceiling rather than just a deduction.
  */
 @Component
 public class LitigationFactor implements RiskFactor {
 
-    private static final double WEIGHT = 0.25;
+    private static final double WEIGHT = 0.14;
 
     /**
      * Highest total a parcel under an active suit may report, no matter how

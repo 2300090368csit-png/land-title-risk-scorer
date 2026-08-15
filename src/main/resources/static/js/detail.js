@@ -44,9 +44,13 @@ function renderFacts(parcel) {
         ["Survey number", parcel.surveyNo],
         ["Location", parcel.locationArea],
         ["Seller", parcel.sellerName],
+        ["Section 22A list", humanizeEnum(parcel.prohibitedStatus)],
+        ["Land classification", humanizeEnum(parcel.landClassification)],
         ["Encumbrance certificate", humanizeEnum(parcel.ecStatus)],
         ["Litigation", humanizeEnum(parcel.litigationStatus)],
+        ["Pattadar / ROR-1B", humanizeEnum(parcel.pattadarMatch)],
         ["Layout approval", humanizeEnum(parcel.layoutApproval)],
+        ["NALA conversion", humanizeEnum(parcel.nalaStatus)],
         ["RERA", humanizeEnum(parcel.reraStatus)],
         ["MeeBhoomi record", humanizeEnum(parcel.meeBhoomiMatch)]
     ];
