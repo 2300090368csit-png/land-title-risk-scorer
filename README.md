@@ -11,6 +11,12 @@ a 0–100 "title risk score" — like a credit score, but for whether the paperw
 <b>Database:</b> H2 (in-memory, zero setup)
 </p>
 
+<p align="center">
+<a href="https://land-title-risk-scorer.onrender.com/"><b>▶ Try the live demo</b></a><br/>
+<sub>Sign in with <code>demo</code> / <code>demo1234</code> — or create your own account.<br/>
+Hosted on a free instance, so if it has been idle a while the first page can take ~50 seconds to wake up.</sub>
+</p>
+
 ---
 
 ## Table of contents
@@ -119,9 +125,12 @@ parcels; nothing you do here can break anything permanently.
 
 ## 2b. Deploying it so other people can open a link
 
-The repo carries everything needed to deploy: a multi-stage `Dockerfile`, a
-`render.yaml` blueprint, and `server.port=${PORT:8080}` so the app binds to
-whatever port the host assigns.
+**This is already deployed:
+[land-title-risk-scorer.onrender.com](https://land-title-risk-scorer.onrender.com/)**
+
+The repo carries everything needed to do it again from scratch: a multi-stage
+`Dockerfile`, a `render.yaml` blueprint, and `server.port=${PORT:8080}` so the
+app binds to whatever port the host assigns.
 
 **On Render (free, no card):**
 
